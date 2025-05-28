@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:mysql://192.168.75.130:3306/netdisk?useSSL=false&serverTimezone=UTC
+    username: root
+    password: your_password_here
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  application:
+    name: NetDisk
+server:
+  port: 8080
