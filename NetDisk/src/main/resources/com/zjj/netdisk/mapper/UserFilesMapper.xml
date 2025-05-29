@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjj.netdisk.mapper.UserFilesMapper">
+
+    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.UserFiles">
+            <id property="fileId" column="file_id" />
+            <result property="userId" column="user_id" />
+            <result property="parentFolderId" column="parent_folder_id" />
+            <result property="itemName" column="item_name" />
+            <result property="itemType" column="item_type" />
+            <result property="mimeType" column="mime_type" />
+            <result property="fileSizeBytes" column="file_size_bytes" />
+            <result property="fileHashFk" column="file_hash_fk" />
+            <result property="status" column="status" />
+            <result property="creationTs" column="creation_ts" />
+            <result property="modificationTs" column="modification_ts" />
+            <result property="deletedTs" column="deleted_ts" />
+            <result property="originalParentId" column="original_parent_id" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        file_id,user_id,parent_folder_id,item_name,item_type,mime_type,
+        file_size_bytes,file_hash_fk,status,creation_ts,modification_ts,
+        deleted_ts,original_parent_id
+    </sql>
+</mapper>

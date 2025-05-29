@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjj.netdisk.mapper.SharesMapper">
+
+    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.Shares">
+            <id property="shareId" column="share_id" />
+            <result property="userFileId" column="user_file_id" />
+            <result property="sharerUserId" column="sharer_user_id" />
+            <result property="shareToken" column="share_token" />
+            <result property="passwordHash" column="password_hash" />
+            <result property="expiryTs" column="expiry_ts" />
+            <result property="creationTs" column="creation_ts" />
+            <result property="accessCount" column="access_count" />
+            <result property="permissions" column="permissions" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        share_id,user_file_id,sharer_user_id,share_token,password_hash,expiry_ts,
+        creation_ts,access_count,permissions
+    </sql>
+</mapper>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjj.netdisk.mapper.UserActivitiesMapper">
+
+    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.UserActivities">
+            <id property="activityId" column="activity_id" />
+            <result property="userId" column="user_id" />
+            <result property="activityType" column="activity_type" />
+            <result property="targetFileId" column="target_file_id" />
+            <result property="details" column="details" />
+            <result property="activityTs" column="activity_ts" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        activity_id,user_id,activity_type,target_file_id,details,activity_ts
+    </sql>
+</mapper>

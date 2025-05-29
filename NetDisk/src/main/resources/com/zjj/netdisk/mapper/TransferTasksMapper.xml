@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjj.netdisk.mapper.TransferTasksMapper">
+
+    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.TransferTasks">
+            <id property="taskId" column="task_id" />
+            <result property="userId" column="user_id" />
+            <result property="userFileId" column="user_file_id" />
+            <result property="targetParentFolderId" column="target_parent_folder_id" />
+            <result property="taskType" column="task_type" />
+            <result property="fileName" column="file_name" />
+            <result property="totalSizeBytes" column="total_size_bytes" />
+            <result property="transferredBytes" column="transferred_bytes" />
+            <result property="status" column="status" />
+            <result property="chunkInfo" column="chunk_info" />
+            <result property="fileHashFk" column="file_hash_fk" />
+            <result property="creationTs" column="creation_ts" />
+            <result property="lastActivityTs" column="last_activity_ts" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        task_id,user_id,user_file_id,target_parent_folder_id,task_type,file_name,
+        total_size_bytes,transferred_bytes,status,chunk_info,file_hash_fk,
+        creation_ts,last_activity_ts
+    </sql>
+</mapper>

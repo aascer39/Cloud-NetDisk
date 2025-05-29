@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjj.netdisk.mapper.UsersMapper">
+
+    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.Users">
+            <id property="userId" column="user_id" />
+            <result property="username" column="username" />
+            <result property="passwordHash" column="password_hash" />
+            <result property="email" column="email" />
+            <result property="registrationTs" column="registration_ts" />
+            <result property="lastLoginTs" column="last_login_ts" />
+            <result property="status" column="status" />
+            <result property="storageQuotaBytes" column="storage_quota_bytes" />
+            <result property="usedStorageBytes" column="used_storage_bytes" />
+            <result property="isAdmin" column="is_admin" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        user_id,username,password_hash,email,registration_ts,last_login_ts,
+        status,storage_quota_bytes,used_storage_bytes,is_admin
+    </sql>
+    <insert id="insertUser" parameterType="com.zjj.netdisk.entity.Users">
+        INSERT INTO users (username, password_hash, email, registration_ts, last_login_ts,
+                           status, storage_quota_bytes, used_storage_bytes, is_admin)
+        VALUES (#{username}, #{passwordHash}, #{email}, #{registrationTs},
+                #{lastLoginTs}, #{status}, #{storageQuotaBytes}, #{usedStorageBytes},
+                #{isAdmin})
+    </insert>
+    <update id="updateUser" parameterType="com.zjj.netdisk.entity.Users">
+        UPDATE users
+        SET username = #{username},
+            password_hash = #{passwordHash},
+            email = #{email},
+            registration_ts = #{registrationTs},
+            last_login_ts = #{lastLoginTs},
+            status = #{status},
+            storage_quota_bytes = #{storageQuotaBytes},
+            used_storage_bytes = #{usedStorageBytes},
+            is_admin = #{isAdmin}
+        WHERE user_id = #{userId}
+    </update>
+    <delete id="deleteUser" parameterType="java.lang.Long">
+        DELETE FROM users
+        WHERE user_id = #{userId}
+    </delete>
+    <select id="selectByUsername" resultType="com.zjj.netdisk.entity.Users" parameterType="java.lang.String">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM users
+        WHERE username = #{username}
+    </select>
+    <select id="selectByEmail" resultType="com.zjj.netdisk.entity.Users" parameterType="java.lang.String">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM users
+        WHERE email = #{email}
+    </select>
+</mapper>

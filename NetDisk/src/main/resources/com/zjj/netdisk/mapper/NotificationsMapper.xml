@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjj.netdisk.mapper.NotificationsMapper">
+
+    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.Notifications">
+            <id property="notificationId" column="notification_id" />
+            <result property="userId" column="user_id" />
+            <result property="title" column="title" />
+            <result property="message" column="message" />
+            <result property="link" column="link" />
+            <result property="isRead" column="is_read" />
+            <result property="notificationType" column="notification_type" />
+            <result property="creationTs" column="creation_ts" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        notification_id,user_id,title,message,link,is_read,
+        notification_type,creation_ts
+    </sql>
+</mapper>

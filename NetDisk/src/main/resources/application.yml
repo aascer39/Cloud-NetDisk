@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://192.168.75.130:3306/cloud_disk?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://192.168.75.130:3306/cloud_disk?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     #配置 Druid 数据源
     type: com.alibaba.druid.pool.DruidDataSource
     username: root
@@ -22,7 +22,7 @@ server:
 ############## Sa-Token 配置 (文档: https://sa-token.cc) ##############
 sa-token:
   # token 名称（同时也是 cookie 名称）
-  token-name: sa-token
+  token-name: MikuNetDisk-token
   # token 有效期（单位：秒） 默认30天，-1 代表永久有效
   timeout: 2592000
   # token 最低活跃频率（单位：秒），如果 token 超过此时间没有访问系统就会被冻结，默认-1 代表不限制，永不冻结
@@ -33,5 +33,7 @@ sa-token:
   is-share: false
   # token 风格（默认可取值：uuid、simple-uuid、random-32、random-64、random-128、tik）
   token-style: uuid
+
+  isLog: true
   # 是否输出操作日志
   isColorLog: true
