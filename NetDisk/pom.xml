@@ -62,14 +62,14 @@
             <scope>runtime</scope>
         </dependency>
 
-
-        <!-- sa-token 权限认证, 在线文档：https://sa-token.cc/ -->
+        <!-- Sa-Token 权限认证，在线文档：https://sa-token.cc -->
         <dependency>
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-spring-boot-starter</artifactId>
-            <version>1.12.0</version>
+            <version>1.43.0</version>
         </dependency>
-<!--        druid高性能链接池-->
+
+        <!--        druid高性能链接池-->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>

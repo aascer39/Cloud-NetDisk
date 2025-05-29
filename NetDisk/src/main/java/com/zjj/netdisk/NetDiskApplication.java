@@ -3,6 +3,9 @@ package com.zjj.netdisk;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * @author 34978
+ */
 @SpringBootApplication
 public class NetDiskApplication {
 
