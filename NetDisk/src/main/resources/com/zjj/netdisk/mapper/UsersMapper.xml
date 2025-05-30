@@ -15,46 +15,46 @@
             <result property="storageQuotaBytes" column="storage_quota_bytes" />
             <result property="usedStorageBytes" column="used_storage_bytes" />
             <result property="isAdmin" column="is_admin" />
+            <result property="lastPasswordUpdateTs" column="last_password_update_ts" />
     </resultMap>
 
     <sql id="Base_Column_List">
         user_id,username,password_hash,email,registration_ts,last_login_ts,
-        status,storage_quota_bytes,used_storage_bytes,is_admin
+        status,storage_quota_bytes,used_storage_bytes,is_admin,last_password_update_ts
     </sql>
-    <insert id="insertUser" parameterType="com.zjj.netdisk.entity.Users">
-        INSERT INTO users (username, password_hash, email, registration_ts, last_login_ts,
-                           status, storage_quota_bytes, used_storage_bytes, is_admin)
-        VALUES (#{username}, #{passwordHash}, #{email}, #{registrationTs},
-                #{lastLoginTs}, #{status}, #{storageQuotaBytes}, #{usedStorageBytes},
-                #{isAdmin})
+    <insert id="insertUser">
+        insert into users (username,password_hash,email,registration_ts,last_login_ts,
+        status,storage_quota_bytes,used_storage_bytes,is_admin,last_password_update_ts)
+        values (#{username},#{passwordHash},#{email},#{registrationTs},#{lastLoginTs},
+        #{status},#{storageQuotaBytes},#{usedStorageBytes},#{isAdmin},#{lastPasswordUpdateTs})
     </insert>
-    <update id="updateUser" parameterType="com.zjj.netdisk.entity.Users">
-        UPDATE users
-        SET username = #{username},
-            password_hash = #{passwordHash},
-            email = #{email},
-            registration_ts = #{registrationTs},
-            last_login_ts = #{lastLoginTs},
-            status = #{status},
-            storage_quota_bytes = #{storageQuotaBytes},
-            used_storage_bytes = #{usedStorageBytes},
-            is_admin = #{isAdmin}
-        WHERE user_id = #{userId}
+    <update id="updateUser">
+        update users
+        set username = #{username},
+        password_hash = #{passwordHash},
+        email = #{email},
+        last_login_ts = #{lastLoginTs},
+        status = #{status},
+        storage_quota_bytes = #{storageQuotaBytes},
+        used_storage_bytes = #{usedStorageBytes},
+        is_admin = #{isAdmin},
+        last_password_update_ts = #{lastPasswordUpdateTs}
+        where user_id = #{userId}
     </update>
-    <delete id="deleteUser" parameterType="java.lang.Long">
-        DELETE FROM users
-        WHERE user_id = #{userId}
+    <delete id="deleteUser">
+        delete from users where user_id = #{userId}
     </delete>
-    <select id="selectByUsername" resultType="com.zjj.netdisk.entity.Users" parameterType="java.lang.String">
-        SELECT
-            <include refid="Base_Column_List" />
-        FROM users
-        WHERE username = #{username}
+    <select id="selectByUsername" resultType="com.zjj.netdisk.entity.Users">
+        select
+        <include refid="Base_Column_List" />
+        from users
+        where username = #{username}
     </select>
-    <select id="selectByEmail" resultType="com.zjj.netdisk.entity.Users" parameterType="java.lang.String">
-        SELECT
-            <include refid="Base_Column_List" />
-        FROM users
-        WHERE email = #{email}
+    <select id="selectByEmail" resultType="com.zjj.netdisk.entity.Users">
+        select
+        <include refid="Base_Column_List" />
+        from users
+        where email = #{email}
     </select>
+
 </mapper>

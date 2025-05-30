@@ -95,6 +95,18 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <!-- MinIO 官方 Java SDK -->
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.5.9</version> <!-- 检查最新版本 -->
+        </dependency>
+<!--        Hutools依赖-->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.38</version>
+        </dependency>
     </dependencies>
 
     <build>

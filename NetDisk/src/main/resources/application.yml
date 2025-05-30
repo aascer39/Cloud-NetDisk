@@ -37,3 +37,9 @@ sa-token:
   isLog: true
   # 是否输出操作日志
   isColorLog: true
+minio:
+  endpoint: http://192.168.75.130:9000  # MinIO 服务器地址
+  access-key: minioadmin    # 替换为你的 AccessKey
+  secret-key: minioadmin     # 替换为你的 SecretKey
+  bucket: netdisk-storage               # 默认存储桶名称
+  secure: false                   # 是否使用 HTTPS（默认 false）

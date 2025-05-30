@@ -69,34 +69,6 @@
             <option name="tableUIInfoList">
               <list>
                 <TableUIInfo>
-                  <option name="className" value="Favorites" />
-                  <option name="tableName" value="favorites" />
-                </TableUIInfo>
-                <TableUIInfo>
-                  <option name="className" value="Notifications" />
-                  <option name="tableName" value="notifications" />
-                </TableUIInfo>
-                <TableUIInfo>
-                  <option name="className" value="PhysicalFiles" />
-                  <option name="tableName" value="physical_files" />
-                </TableUIInfo>
-                <TableUIInfo>
-                  <option name="className" value="Shares" />
-                  <option name="tableName" value="shares" />
-                </TableUIInfo>
-                <TableUIInfo>
-                  <option name="className" value="TransferTasks" />
-                  <option name="tableName" value="transfer_tasks" />
-                </TableUIInfo>
-                <TableUIInfo>
-                  <option name="className" value="UserActivities" />
-                  <option name="tableName" value="user_activities" />
-                </TableUIInfo>
-                <TableUIInfo>
-                  <option name="className" value="UserFiles" />
-                  <option name="tableName" value="user_files" />
-                </TableUIInfo>
-                <TableUIInfo>
                   <option name="className" value="Users" />
                   <option name="tableName" value="users" />
                 </TableUIInfo>

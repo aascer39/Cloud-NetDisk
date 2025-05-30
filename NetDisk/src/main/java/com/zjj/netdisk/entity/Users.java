@@ -1,7 +1,6 @@
 package com.zjj.netdisk.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
@@ -10,6 +9,7 @@ import lombok.Data;
 /**
  * 用户信息表
  * @TableName users
+ * @author 34978
  */
 @TableName(value ="users")
 @Data
@@ -65,6 +65,11 @@ public class Users {
      */
     private Integer isAdmin;
 
+    /**
+     * 用户最后修改密码时间戳，可为空
+     */
+    private Date lastPasswordUpdateTs;
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -86,7 +91,8 @@ public class Users {
             && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
             && (this.getStorageQuotaBytes() == null ? other.getStorageQuotaBytes() == null : this.getStorageQuotaBytes().equals(other.getStorageQuotaBytes()))
             && (this.getUsedStorageBytes() == null ? other.getUsedStorageBytes() == null : this.getUsedStorageBytes().equals(other.getUsedStorageBytes()))
-            && (this.getIsAdmin() == null ? other.getIsAdmin() == null : this.getIsAdmin().equals(other.getIsAdmin()));
+            && (this.getIsAdmin() == null ? other.getIsAdmin() == null : this.getIsAdmin().equals(other.getIsAdmin()))
+            && (this.getLastPasswordUpdateTs() == null ? other.getLastPasswordUpdateTs() == null : this.getLastPasswordUpdateTs().equals(other.getLastPasswordUpdateTs()));
     }
 
     @Override
@@ -103,6 +109,7 @@ public class Users {
         result = prime * result + ((getStorageQuotaBytes() == null) ? 0 : getStorageQuotaBytes().hashCode());
         result = prime * result + ((getUsedStorageBytes() == null) ? 0 : getUsedStorageBytes().hashCode());
         result = prime * result + ((getIsAdmin() == null) ? 0 : getIsAdmin().hashCode());
+        result = prime * result + ((getLastPasswordUpdateTs() == null) ? 0 : getLastPasswordUpdateTs().hashCode());
         return result;
     }
 
@@ -118,6 +125,7 @@ public class Users {
         sb.append(", email=").append(email);
         sb.append(", registrationTs=").append(registrationTs);
         sb.append(", lastLoginTs=").append(lastLoginTs);
+        sb.append(", lastPasswordUpdateTs=").append(lastPasswordUpdateTs);
         sb.append(", status=").append(status);
         sb.append(", storageQuotaBytes=").append(storageQuotaBytes);
         sb.append(", usedStorageBytes=").append(usedStorageBytes);

@@ -1,10 +1,8 @@
 package com.zjj.netdisk.utils;
 
+import cn.hutool.core.date.DateUtil;
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+
 
 /**
  * @author 34978
@@ -21,19 +19,8 @@ public class UtilityTools {
      * @return 代表当前北京时间的 java.sql.Timestamp 对象
      */
     public static Timestamp getBeijingTimestamp() {
-        // 1. 获取当前的UTC时间点
-        Instant nowUtc = Instant.now();
-
-        // 2. 定义北京时区
-        ZoneId beijingZone = ZoneId.of("Asia/Shanghai");
-
-        // 3. 将UTC时间点转换为北京时区的ZonedDateTime
-        ZonedDateTime beijingZonedDateTime = nowUtc.atZone(beijingZone);
-
-        // 4. 将ZonedDateTime转换为LocalDateTime (java.sql.Timestamp.valueOf需要LocalDateTime)
-        LocalDateTime beijingLocalDateTime = beijingZonedDateTime.toLocalDateTime();
-
-        // 5. 使用LocalDateTime创建java.sql.Timestamp对象
-        return Timestamp.valueOf(beijingLocalDateTime);
+        // System.currentTimeMillis() 获取当前UTC毫秒数
+        // new Timestamp() 直接创建对象
+        return new Timestamp(System.currentTimeMillis());
     }
 }

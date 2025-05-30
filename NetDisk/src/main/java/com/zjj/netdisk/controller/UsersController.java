@@ -1,10 +1,11 @@
 package com.zjj.netdisk.controller;
 
-import cn.dev33.satoken.secure.SaSecureUtil; // 导入 SaSecureUtil
+// 导入 SaSecureUtil
+import cn.dev33.satoken.secure.SaSecureUtil;
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
-import com.alibaba.druid.util.Utils;
+import cn.hutool.crypto.digest.DigestUtil;
 import com.zjj.netdisk.entity.Users;
 import com.zjj.netdisk.mapper.UsersMapper;
 import com.zjj.netdisk.service.UsersService;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import java.util.Objects;
 
 /**
@@ -24,8 +24,6 @@ import java.util.Objects;
 @RequestMapping("/miku")
 public class UsersController {
     // 假设你会用它来获取存储的用户信息
-    @Autowired
-    private UsersMapper usersMapper;
     @Autowired
     private UsersService usersService;
 
@@ -49,7 +47,7 @@ public class UsersController {
         // 首先检查用户名
         if (user.getUsername().equals(name)) {
             // 第一步：将用户提交的密码进行哈希处理
-            String inputPasswordHash = SaSecureUtil.sha256(pwd);
+            String inputPasswordHash = DigestUtil.sha256Hex(pwd);
 
             // 第二步：比较哈希后的输入密码与存储的哈希密码
             if (hashPwd.equals(inputPasswordHash)) {
@@ -134,10 +132,42 @@ public class UsersController {
             user.setEmail(email);
         }
         // 更新用户信息
-        user.setLastLoginTs(UtilityTools.getBeijingTimestamp());
         usersService.updateUser(user);
 
         return SaResult.ok("用户信息更新成功");
+    }
+
+//    检查是否是本人接口
+    @Operation(summary = "检查是否是本人接口")
+    @RequestMapping("/checkIsMe")
+    @ResponseBody
+    public SaResult checkIsMe(String oldPwd) {
+        // 检查旧密码是否正确
+        Users user = usersService.getById(StpUtil.getLoginIdAsLong());
+        String hashPwd = user.getPasswordHash();
+        String inputOldPasswordHash = DigestUtil.sha256Hex(oldPwd);
+        if (!hashPwd.equals(inputOldPasswordHash)) {
+            return SaResult.error("旧密码错误");
+        }
+        return SaResult.ok("验证成功，您是本人");
+    }
+
+//    修改密码接口
+    @Operation(summary = "修改密码接口")
+    @RequestMapping("/updatePassword")
+    @ResponseBody
+    public SaResult updatePassword(String newPassword) {
+
+        Users user = usersService.getById(StpUtil.getLoginIdAsLong());
+        if(user.getPasswordHash().equals(DigestUtil.sha256Hex(newPassword))){
+            return SaResult.error("你的新密码与旧密码相同，请重新输入");
+        }
+        // 更新密码
+        user.setPasswordHash(SaSecureUtil.sha256(newPassword));
+        user.setLastPasswordUpdateTs(UtilityTools.getBeijingTimestamp());
+        usersService.updateUser(user);
+
+        return SaResult.ok("密码修改成功");
     }
 
     // 用户自己注销接口
