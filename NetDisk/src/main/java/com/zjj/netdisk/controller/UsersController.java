@@ -1,43 +1,43 @@
 package com.zjj.netdisk.controller;
 
 // 导入 SaSecureUtil
-import cn.dev33.satoken.secure.SaSecureUtil;
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.zjj.netdisk.entity.Users;
-import com.zjj.netdisk.mapper.UsersMapper;
 import com.zjj.netdisk.service.UsersService;
 import com.zjj.netdisk.utils.UtilityTools;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.Objects;
 
 /**
  * @author 34978
  */
-@Controller
-@RequestMapping("/miku")
+@RestController
+@RequestMapping("/users")
 public class UsersController {
     // 假设你会用它来获取存储的用户信息
+    private final  UsersService usersService;
+
     @Autowired
-    private UsersService usersService;
+    public UsersController(UsersService usersService) {
+        this.usersService = usersService;
+    }
 
     @RequestMapping("/test")
-    @ResponseBody // 注意这里
     public Object test() {
         Users user = usersService.getById(1004);
         return user;
     }
 
     // 会话登录接口
-    @Operation(summary = "用户登录接口")
+    @Operation(summary = "用户登录")
     @RequestMapping("/doLogin")
-    @ResponseBody
     public SaResult doLogin(String name, String pwd) {
         Users user = usersService.selectByUsername(name);
         if (user == null) {
@@ -65,18 +65,16 @@ public class UsersController {
     }
 
     // 会话登出接口
-    @Operation(summary = "用户登出接口")
+    @Operation(summary = "用户登出")
     @RequestMapping("/doLogout")
-    @ResponseBody
     public SaResult doLogout() {
         // 直接登出
         StpUtil.logout();
         return SaResult.ok("登出成功");
     }
 
-    @Operation(summary = "用户注册接口")
+    @Operation(summary = "用户注册")
     @RequestMapping("/register")
-    @ResponseBody
     public SaResult registerUser(String username, String password, String email) {
         // 检查用户名是否已存在
         Users existingUser = usersService.selectByUsername(username);
@@ -88,7 +86,7 @@ public class UsersController {
         Users newUser = new Users();
         newUser.setUsername(username);
         // 哈希密码
-        newUser.setPasswordHash(SaSecureUtil.sha256(password));
+        newUser.setPasswordHash(DigestUtil.sha256Hex(password));
         // 可选，设置邮箱
         newUser.setEmail(email);
         // 设置注册时间戳
@@ -111,9 +109,8 @@ public class UsersController {
     }
 
     //    更新用户信息
-    @Operation(summary = "更新用户信息接口")
+    @Operation(summary = "更新用户信息")
     @RequestMapping("/updateUser")
-    @ResponseBody
     public SaResult updateUser(String username, String email) {
         // 检查用户是否存在
         Long tokenUserId = StpUtil.getLoginIdAsLong();
@@ -138,9 +135,8 @@ public class UsersController {
     }
 
 //    检查是否是本人接口
-    @Operation(summary = "检查是否是本人接口")
+    @Operation(summary = "检查是否是本人")
     @RequestMapping("/checkIsMe")
-    @ResponseBody
     public SaResult checkIsMe(String oldPwd) {
         // 检查旧密码是否正确
         Users user = usersService.getById(StpUtil.getLoginIdAsLong());
@@ -153,9 +149,8 @@ public class UsersController {
     }
 
 //    修改密码接口
-    @Operation(summary = "修改密码接口")
+    @Operation(summary = "修改密码")
     @RequestMapping("/updatePassword")
-    @ResponseBody
     public SaResult updatePassword(String newPassword) {
 
         Users user = usersService.getById(StpUtil.getLoginIdAsLong());
@@ -163,7 +158,7 @@ public class UsersController {
             return SaResult.error("你的新密码与旧密码相同，请重新输入");
         }
         // 更新密码
-        user.setPasswordHash(SaSecureUtil.sha256(newPassword));
+        user.setPasswordHash(DigestUtil.sha256Hex(newPassword));
         user.setLastPasswordUpdateTs(UtilityTools.getBeijingTimestamp());
         usersService.updateUser(user);
 
@@ -171,9 +166,8 @@ public class UsersController {
     }
 
     // 用户自己注销接口
-    @Operation(summary = "注销接口")
+    @Operation(summary = "注销")
     @RequestMapping("/deleteUser")
-    @ResponseBody
     public SaResult deleteUser() {
         Long tokenUserId = StpUtil.getLoginIdAsLong();
         // 普通用户，删除这个用户

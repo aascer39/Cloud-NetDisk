@@ -15,28 +15,26 @@ import org.springframework.stereotype.Service;
 @Service
 public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users>
     implements UsersService{
-    @Autowired
-    private UsersMapper usersMapper;
 
     @Override
     public Users selectByUsername(String username) {
-        return usersMapper.selectByUsername(username);
+        return baseMapper.selectByUsername(username);
     }
     @Override
     public void insertUser(Users user) {
-        usersMapper.insertUser(user);
+        baseMapper.insertUser(user);
     }
     @Override
     public void updateUser(Users user) {
-        usersMapper.updateUser(user);
+        baseMapper.updateUser(user);
     }
     @Override
     public void deleteUser(Long userId) {
-        usersMapper.deleteUser(userId);
+        baseMapper.deleteUser(userId);
     }
     @Override
     public Users selectByEmail(String email) {
-        return usersMapper.selectByEmail(email);
+        return baseMapper.selectByEmail(email);
     }
 }
 

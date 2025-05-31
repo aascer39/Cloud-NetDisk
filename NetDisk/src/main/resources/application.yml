@@ -17,6 +17,8 @@ spring:
       timeout: 3000ms   # 连接超时时间（毫秒）
 
 server:
+  servlet:
+    context-path: /MikuNetDisk  # 设置应用的上下文路径
   port: 8080
 
 ############## Sa-Token 配置 (文档: https://sa-token.cc) ##############
