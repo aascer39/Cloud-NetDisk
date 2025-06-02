@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface PhysicalFilesMapper extends BaseMapper<PhysicalFiles> {
     void insertPhysicalFiles(PhysicalFiles physicalFiles);
     PhysicalFiles selectByFileHash(String fileHash);
+    void updatePhysicalFiles(PhysicalFiles physicalFiles);
 }
 
 

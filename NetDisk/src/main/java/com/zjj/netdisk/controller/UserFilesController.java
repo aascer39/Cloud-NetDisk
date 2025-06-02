@@ -15,12 +15,17 @@ import io.minio.StatObjectResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.*;
+import java.util.Map;
 
 /**
  * @author 34978
@@ -34,7 +39,7 @@ public class UserFilesController {
     private final PhysicalFilesService physicalFilesService;
 
     @Autowired
-    public UserFilesController(MinioStorageService minioStorageService,PhysicalFilesService physicalFilesService, UserFilesService userFilesService) {
+    public UserFilesController(MinioStorageService minioStorageService, PhysicalFilesService physicalFilesService, UserFilesService userFilesService) {
         this.minioStorageService = minioStorageService;
         this.userFilesService = userFilesService;
         this.physicalFilesService = physicalFilesService;
@@ -140,58 +145,135 @@ public class UserFilesController {
     }
 
     @Operation(summary = "上传文件")
-    @RequestMapping("/upload")
-    public SaResult uploadFile(@RequestParam String objectName, @RequestParam String filePath) {
+    @PostMapping("/upload") // 文件上传通常使用 POST 请求
+    public SaResult uploadFile(@RequestParam(value = "objectName", required = false) String objectName, // objectName 可以是可选的，或者从文件名派生
+                               @RequestParam("file") MultipartFile file) { // "file" 必须与前端 <a-upload> 组件的 name 属性匹配
         Long userId = StpUtil.getLoginIdAsLong();
-        // 确保 objectName 和 filePath 不为空
-        if (objectName == null || objectName.trim().isEmpty() || filePath == null || filePath.trim().isEmpty()) {
-            return SaResult.error("objectName 和 filePath 参数不能为空");
+
+        // 1. 校验文件是否为空
+        if (file.isEmpty()) {
+            return SaResult.error("上传的文件不能为空");
         }
 
-        // 构造 MinIO 中实际的对象名称（包含用户ID前缀）
-        String minioActualObjectName = userId + "/" + objectName.trim()+UtilityTools.getBeijingTimestamp();
-        filePath = filePath.trim();
+        // 获取原始文件名
+        String originalFilename = file.getOriginalFilename();
 
-//            上传文件前，先检查文件在云端是否存在
-            String fileHash = UtilityTools.getFileSha256ByPath(filePath);
-            long fileSize = 0;
+        // 2. 确定有效的文件名 (effectiveObjectName)
+        // 如果前端传递了 objectName，则使用它；否则，使用原始文件名。
+        String effectiveObjectName = (objectName == null || objectName.trim().isEmpty())
+                ? originalFilename
+                : objectName.trim();
+
+        if (effectiveObjectName == null || effectiveObjectName.trim().isEmpty()) {
+            return SaResult.error("文件名不能为空 (无论是自定义的 objectName 还是原始文件名)");
+        }
+
+        // 用于存储临时文件
+        Path tempFile = null;
+        try {
+            // 3. 将 MultipartFile 保存为临时文件
+            // 这是因为你现有的一些工具方法 (如 getFileSha256ByPath, minioStorageService.uploadFile) 可能需要一个文件路径。
+            // 如果这些工具能直接处理 InputStream，则可以避免创建临时文件。
+            String prefix = "upload-" + userId + "-";
+            String suffix = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            tempFile = Files.createTempFile(prefix, suffix); // 创建带唯一性的临时文件
+            try (InputStream inputStream = file.getInputStream()) { // 从 MultipartFile 获取输入流
+                Files.copy(inputStream, tempFile, StandardCopyOption.REPLACE_EXISTING); // 将输入流内容复制到临时文件
+            }
+            String tempFilePath = tempFile.toAbsolutePath().toString(); // 获取临时文件的绝对路径
+
+            // 4. 构造 MinIO 中实际的对象名称
+            // 在文件名后添加时间戳可以确保用户上传同名文件时，在 MinIO 中的对象名是唯一的。
+            // 但这也意味着如果仅通过 effectiveObjectName 去检索，可能无法直接匹配（不带时间戳的部分）。
+            // 需要考虑这是期望的行为，还是希望覆盖或版本化。
+            String minioActualObjectName = userId + "/" + effectiveObjectName + "-" + UtilityTools.getBeijingTimestamp();
+
+            // 5. 计算文件哈希值和获取文件大小
+            String fileHash = UtilityTools.getFileSha256ByPath(tempFilePath); // 使用临时文件路径计算哈希
+            long fileSize = file.getSize(); // 直接从 MultipartFile 获取文件大小
+
             PhysicalFiles physicalFiles = physicalFilesService.selectByFileHash(fileHash);
+
             if (physicalFiles == null) {
-                fileSize = FileInfoDetector.getFileSizeInBytes(filePath);
-                minioStorageService.uploadFile(minioActualObjectName, filePath);
+                // 如果物理文件记录不存在 (根据哈希值判断)
+                // fileSize = FileInfoDetector.getFileSizeInBytes(tempFilePath); // 或者，如果需要通过路径获取，确保此方法有效
+                minioStorageService.uploadFile(minioActualObjectName, tempFilePath); // 将临时文件上传到 MinIO
+
                 PhysicalFiles newPhysicalFiles = PhysicalFiles.builder()
                         .fileHash(fileHash)
                         .fileSizeBytes(fileSize)
+                        // MinIO 中的存储路径
                         .storagePath(minioActualObjectName)
                         .creationTs(UtilityTools.getBeijingTimestamp())
+                        // 新文件引用计数为1
                         .referenceCount(1)
-                        .creationTs(UtilityTools.getBeijingTimestamp())
+                        // .creationTs(UtilityTools.getBeijingTimestamp()) // 注意：这里似乎重复设置了 creationTs
                         .build();
                 physicalFilesService.insertPhysicalFiles(newPhysicalFiles);
-            }else {
-                log.info("文件已存在，跳过上传: {}", minioActualObjectName);
+                log.info("新文件上传到 MinIO: {}", minioActualObjectName);
+            } else {
+                // 如果物理文件记录已存在 (文件内容已存在于系统中)
+                log.info("文件哈希已存在，物理文件位于: {}. 将引用此物理文件。", physicalFiles.getStoragePath());
+                // 使用已存在记录的文件大小
                 fileSize = physicalFiles.getFileSizeBytes();
 
+                // 重要: 即便物理文件已存在，用户可能以新的 'effectiveObjectName' "上传"它。
+                // 你当前逻辑是为用户的每次上传（即使内容相同）创建一个新的 `minioActualObjectName` (因为加了时间戳)。
+                // 这意味着多个 UserFiles 记录可能指向内容相同（哈希相同）但 MinIO 路径不同的对象。
+                // 如果去重也意味着复用同一个 MinIO 对象，那么这里的 `minioActualObjectName` 需要调整为 `physicalFiles.getStoragePath()`。
+                // 目前假设：即使用户上传了内容相同的文件，只要他指定了不同的 `objectName` 或系统自动生成了不同的时间戳，
+                // 就会在 `UserFiles` 中产生一条新记录，并且在 MinIO 中也可能是一个新的对象（如果 `minioActualObjectName` 不同）。
+                // 我们需要增加现有 `PhysicalFiles` 的引用计数。
+                physicalFiles.setReferenceCount(physicalFiles.getReferenceCount() + 1);
+                // 假设你有更新 PhysicalFiles 的方法
+                physicalFilesService.updatePhysicalFiles(physicalFiles);
             }
-        try {
-            // 创建 UserFiles 实体
+
+            // 6. 创建 UserFiles 实体 (用户逻辑文件记录)
             UserFiles userFiles = UserFiles.builder()
                     .userId(userId)
+                    // 外键，关联到 PhysicalFiles 的哈希
                     .fileHashFk(fileHash)
                     .fileSizeBytes(fileSize)
-                    .parentFolder(userId+ "/")
-                    .itemName(objectName.trim())
+                    // 或者一个更动态的父文件夹路径
+                    .parentFolder(userId + "/")
+                    // 用户看到的文件名
+                    .itemName(effectiveObjectName)
                     .itemType("file")
-                    .mimeType(FileInfoDetector.getContentTypeUsingNio(filePath))
+                    // 从 MultipartFile 获取 MIME 类型
+                    .mimeType(file.getContentType())
+                    // .mimeType(FileInfoDetector.getContentTypeUsingNio(tempFilePath)) // 或者使用你的检测器，如果更可靠
                     .creationTs(UtilityTools.getBeijingTimestamp())
                     .modificationTs(UtilityTools.getBeijingTimestamp())
                     .status("active")
                     .build();
             userFilesService.insertUserFiles(userFiles);
+            // 返回成功信息，可以附带一些数据给前端
             return SaResult.ok("文件上传成功");
+
+        } catch (IOException e) {
+            log.error("文件处理失败 (IO异常): {}", e.getMessage(), e);
+            return SaResult.error("文件处理失败，请稍后再试。");
+        } catch (DataIntegrityViolationException e) { // 例如：捕获 UserFiles 表的唯一约束冲突
+            log.error("文件名可能重复 (数据库约束冲突): userId={}, parentFolder={}, itemName={}", userId, userId + "/", effectiveObjectName, e);
+            return SaResult.error("文件名 '" + effectiveObjectName + "' 已存在于当前位置，请修改您的文件名。");
         } catch (Exception e) {
-            log.error("上传文件失败: {}", e.getMessage(), e);
-            return SaResult.error("文件名重复，请修改你的文件名");
+            log.error("上传文件失败 (未知错误): {}", e.getMessage(), e);
+            // 避免直接暴露数据库约束信息给用户，除非是特意捕获并处理的。
+            return SaResult.error("文件上传失败，请检查文件或联系管理员。");
+        } finally {
+            // 7. 清理临时文件
+            if (tempFile != null) {
+                try {
+                    Files.deleteIfExists(tempFile);
+                } catch (IOException e) {
+                    log.error("无法删除临时文件: {}", tempFile.toString(), e);
+                }
+            }
         }
     }
+
 }

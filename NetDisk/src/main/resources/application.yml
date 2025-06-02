@@ -15,10 +15,15 @@ spring:
       port: 6379        # Redis 服务器端口，默认为 6379
       password: 123456
       timeout: 3000ms   # 连接超时时间（毫秒）
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 105MB
 
 server:
-  servlet:
-    context-path: /MikuNetDisk  # 设置应用的上下文路径
+  servlet: # 正确的缩进
+    context-path: /MikuNetDisk
   port: 8080
 
 ############## Sa-Token 配置 (文档: https://sa-token.cc) ##############

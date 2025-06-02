@@ -19,6 +19,16 @@
         INSERT INTO physical_files (file_hash, file_size_bytes, storage_path, reference_count, creation_ts)
         VALUES (#{fileHash}, #{fileSizeBytes}, #{storagePath}, #{referenceCount}, #{creationTs})
     </insert>
+    <update id="updatePhysicalFiles" parameterType="com.zjj.netdisk.entity.PhysicalFiles">
+        UPDATE physical_files
+        SET
+            file_size_bytes = #{fileSizeBytes},
+            storage_path = #{storagePath},
+            reference_count = #{referenceCount},
+            creation_ts = #{creationTs}
+        WHERE
+            file_hash = #{fileHash}
+    </update>
     <select id="selectByFileHash" resultType="com.zjj.netdisk.entity.PhysicalFiles"
             parameterType="java.lang.String">
         SELECT

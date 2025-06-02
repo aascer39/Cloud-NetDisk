@@ -11,4 +11,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface PhysicalFilesService extends IService<PhysicalFiles> {
     void insertPhysicalFiles(PhysicalFiles physicalFiles);
     PhysicalFiles selectByFileHash(String fileHash);
+    void updatePhysicalFiles(PhysicalFiles physicalFiles);
 }

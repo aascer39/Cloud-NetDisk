@@ -29,6 +29,11 @@ public class PhysicalFilesServiceImpl extends ServiceImpl<PhysicalFilesMapper, P
     public PhysicalFiles selectByFileHash(String fileHash) {
         return physicalFilesMapper.selectByFileHash(fileHash);
     }
+
+    @Override
+    public void updatePhysicalFiles(PhysicalFiles physicalFiles) {
+        physicalFilesMapper.updatePhysicalFiles(physicalFiles);
+    }
 }
 
 
