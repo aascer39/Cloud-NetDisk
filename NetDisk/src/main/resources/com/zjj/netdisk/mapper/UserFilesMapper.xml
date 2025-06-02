@@ -7,7 +7,7 @@
     <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.UserFiles">
             <id property="fileId" column="file_id" />
             <result property="userId" column="user_id" />
-            <result property="parentFolderId" column="parent_folder_id" />
+            <result property="parentFolder" column="parent_folder" />
             <result property="itemName" column="item_name" />
             <result property="itemType" column="item_type" />
             <result property="mimeType" column="mime_type" />
@@ -17,12 +17,20 @@
             <result property="creationTs" column="creation_ts" />
             <result property="modificationTs" column="modification_ts" />
             <result property="deletedTs" column="deleted_ts" />
-            <result property="originalParentId" column="original_parent_id" />
     </resultMap>
 
     <sql id="Base_Column_List">
-        file_id,user_id,parent_folder_id,item_name,item_type,mime_type,
+        file_id,user_id,parent_folder,item_name,item_type,mime_type,
         file_size_bytes,file_hash_fk,status,creation_ts,modification_ts,
-        deleted_ts,original_parent_id
+        deleted_ts
     </sql>
+    <insert id="insertUserFiles" parameterType="com.zjj.netdisk.entity.UserFiles">
+        INSERT INTO user_files (
+            user_id, parent_folder, item_name, item_type, mime_type,
+            file_size_bytes, file_hash_fk, status, creation_ts, modification_ts
+        ) VALUES (
+            #{userId}, #{parentFolder}, #{itemName}, #{itemType}, #{mimeType},
+            #{fileSizeBytes}, #{fileHashFk}, #{status}, #{creationTs}, #{modificationTs}
+        )
+    </insert>
 </mapper>

@@ -14,7 +14,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class PhysicalFilesServiceImpl extends ServiceImpl<PhysicalFilesMapper, PhysicalFiles>
     implements PhysicalFilesService{
+    private final PhysicalFilesMapper physicalFilesMapper;
 
+    public PhysicalFilesServiceImpl(PhysicalFilesMapper physicalFilesMapper) {
+        this.physicalFilesMapper = physicalFilesMapper;
+    }
+
+    @Override
+    public void insertPhysicalFiles(PhysicalFiles physicalFile) {
+        physicalFilesMapper.insertPhysicalFiles(physicalFile);
+    }
+
+    @Override
+    public PhysicalFiles selectByFileHash(String fileHash) {
+        return physicalFilesMapper.selectByFileHash(fileHash);
+    }
 }
 
 

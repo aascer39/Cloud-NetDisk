@@ -45,3 +45,8 @@ minio:
   secret-key: minioadmin     # 替换为你的 SecretKey
   bucket: netdisk-storage               # 默认存储桶名称
   secure: false                   # 是否使用 HTTPS（默认 false）
+logging:
+  level:
+    org.springframework.web.servlet.mvc.method.annotation: DEBUG
+    org.springframework.web.accept: DEBUG
+    org.springframework.http.converter.json: DEBUG # 查看 Jackson 转换器日志

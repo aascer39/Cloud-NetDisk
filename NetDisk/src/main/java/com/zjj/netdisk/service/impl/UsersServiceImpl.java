@@ -22,7 +22,12 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users>
     }
     @Override
     public void insertUser(Users user) {
-        baseMapper.insertUser(user);
+        try{
+            baseMapper.insertUser(user);
+        } catch (Exception e) {
+            log.error("插入用户失败：", e);
+            throw new RuntimeException("插入用户失败",e);
+        }
     }
     @Override
     public void updateUser(Users user) {

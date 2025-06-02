@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -13,6 +15,7 @@ import lombok.Data;
  */
 @TableName(value ="user_files")
 @Data
+@Builder
 public class UserFiles {
     /**
      * 文件或文件夹的唯一标识符，主键，自增
@@ -26,9 +29,9 @@ public class UserFiles {
     private Long userId;
 
     /**
-     * 父文件夹的 file_id，NULL表示根目录
+     * 父文件夹的标识。对于子文件夹/文件，通常是父文件夹的file_id (字符串形式)。对于用户的根级别条目，约定存储用户的user_id (字符串形式)。
      */
-    private Long parentFolderId;
+    private String parentFolder;
 
     /**
      * 文件或文件夹的名称
@@ -75,11 +78,6 @@ public class UserFiles {
      */
     private Date deletedTs;
 
-    /**
-     * 在回收站时，记录其原始父文件夹ID
-     */
-    private Long originalParentId;
-
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -94,7 +92,7 @@ public class UserFiles {
         UserFiles other = (UserFiles) that;
         return (this.getFileId() == null ? other.getFileId() == null : this.getFileId().equals(other.getFileId()))
             && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
-            && (this.getParentFolderId() == null ? other.getParentFolderId() == null : this.getParentFolderId().equals(other.getParentFolderId()))
+            && (this.getParentFolder() == null ? other.getParentFolder() == null : this.getParentFolder().equals(other.getParentFolder()))
             && (this.getItemName() == null ? other.getItemName() == null : this.getItemName().equals(other.getItemName()))
             && (this.getItemType() == null ? other.getItemType() == null : this.getItemType().equals(other.getItemType()))
             && (this.getMimeType() == null ? other.getMimeType() == null : this.getMimeType().equals(other.getMimeType()))
@@ -103,8 +101,7 @@ public class UserFiles {
             && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
             && (this.getCreationTs() == null ? other.getCreationTs() == null : this.getCreationTs().equals(other.getCreationTs()))
             && (this.getModificationTs() == null ? other.getModificationTs() == null : this.getModificationTs().equals(other.getModificationTs()))
-            && (this.getDeletedTs() == null ? other.getDeletedTs() == null : this.getDeletedTs().equals(other.getDeletedTs()))
-            && (this.getOriginalParentId() == null ? other.getOriginalParentId() == null : this.getOriginalParentId().equals(other.getOriginalParentId()));
+            && (this.getDeletedTs() == null ? other.getDeletedTs() == null : this.getDeletedTs().equals(other.getDeletedTs()));
     }
 
     @Override
@@ -113,7 +110,7 @@ public class UserFiles {
         int result = 1;
         result = prime * result + ((getFileId() == null) ? 0 : getFileId().hashCode());
         result = prime * result + ((getUserId() == null) ? 0 : getUserId().hashCode());
-        result = prime * result + ((getParentFolderId() == null) ? 0 : getParentFolderId().hashCode());
+        result = prime * result + ((getParentFolder() == null) ? 0 : getParentFolder().hashCode());
         result = prime * result + ((getItemName() == null) ? 0 : getItemName().hashCode());
         result = prime * result + ((getItemType() == null) ? 0 : getItemType().hashCode());
         result = prime * result + ((getMimeType() == null) ? 0 : getMimeType().hashCode());
@@ -123,7 +120,6 @@ public class UserFiles {
         result = prime * result + ((getCreationTs() == null) ? 0 : getCreationTs().hashCode());
         result = prime * result + ((getModificationTs() == null) ? 0 : getModificationTs().hashCode());
         result = prime * result + ((getDeletedTs() == null) ? 0 : getDeletedTs().hashCode());
-        result = prime * result + ((getOriginalParentId() == null) ? 0 : getOriginalParentId().hashCode());
         return result;
     }
 
@@ -135,7 +131,7 @@ public class UserFiles {
         sb.append("Hash = ").append(hashCode());
         sb.append(", fileId=").append(fileId);
         sb.append(", userId=").append(userId);
-        sb.append(", parentFolderId=").append(parentFolderId);
+        sb.append(", parentFolder=").append(parentFolder);
         sb.append(", itemName=").append(itemName);
         sb.append(", itemType=").append(itemType);
         sb.append(", mimeType=").append(mimeType);
@@ -145,7 +141,6 @@ public class UserFiles {
         sb.append(", creationTs=").append(creationTs);
         sb.append(", modificationTs=").append(modificationTs);
         sb.append(", deletedTs=").append(deletedTs);
-        sb.append(", originalParentId=").append(originalParentId);
         sb.append("]");
         return sb.toString();
     }

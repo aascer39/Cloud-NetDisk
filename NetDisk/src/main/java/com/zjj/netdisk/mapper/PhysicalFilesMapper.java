@@ -10,7 +10,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity com.zjj.netdisk.entity.PhysicalFiles
 */
 public interface PhysicalFilesMapper extends BaseMapper<PhysicalFiles> {
-
+    void insertPhysicalFiles(PhysicalFiles physicalFiles);
+    PhysicalFiles selectByFileHash(String fileHash);
 }
 
 

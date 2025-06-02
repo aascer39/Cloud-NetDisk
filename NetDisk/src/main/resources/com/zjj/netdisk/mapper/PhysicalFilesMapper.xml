@@ -15,4 +15,17 @@
     <sql id="Base_Column_List">
         file_hash,file_size_bytes,storage_path,reference_count,creation_ts
     </sql>
+    <insert id="insertPhysicalFiles" parameterType="com.zjj.netdisk.entity.PhysicalFiles">
+        INSERT INTO physical_files (file_hash, file_size_bytes, storage_path, reference_count, creation_ts)
+        VALUES (#{fileHash}, #{fileSizeBytes}, #{storagePath}, #{referenceCount}, #{creationTs})
+    </insert>
+    <select id="selectByFileHash" resultType="com.zjj.netdisk.entity.PhysicalFiles"
+            parameterType="java.lang.String">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        physical_files
+        WHERE
+        file_hash = #{fileHash}
+    </select>
 </mapper>

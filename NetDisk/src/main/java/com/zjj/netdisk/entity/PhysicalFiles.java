@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -13,6 +15,7 @@ import lombok.Data;
  */
 @TableName(value ="physical_files")
 @Data
+@Builder
 public class PhysicalFiles {
     /**
      * 文件内容的唯一哈希值（例如 SHA-256），作为主键

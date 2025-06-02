@@ -4,7 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+
+import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * 用户信息表
@@ -13,6 +16,7 @@ import lombok.Data;
  */
 @TableName(value ="users")
 @Data
+@Builder
 public class Users {
     /**
      * 用户唯一标识符，主键，自增

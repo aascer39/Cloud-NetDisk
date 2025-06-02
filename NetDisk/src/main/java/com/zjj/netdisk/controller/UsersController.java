@@ -1,14 +1,16 @@
 package com.zjj.netdisk.controller;
 
 // 导入 SaSecureUtil
-import cn.dev33.satoken.stp.SaTokenInfo;
+
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.zjj.netdisk.entity.Users;
+import com.zjj.netdisk.service.MinioStorageService;
 import com.zjj.netdisk.service.UsersService;
 import com.zjj.netdisk.utils.UtilityTools;
 import io.swagger.v3.oas.annotations.Operation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,15 +20,18 @@ import java.util.Objects;
 /**
  * @author 34978
  */
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UsersController {
     // 假设你会用它来获取存储的用户信息
-    private final  UsersService usersService;
+    private final UsersService usersService;
+    private final MinioStorageService minioStorageService ;
 
     @Autowired
-    public UsersController(UsersService usersService) {
+    public UsersController(UsersService usersService,MinioStorageService minioStorageService) {
         this.usersService = usersService;
+        this.minioStorageService = minioStorageService;
     }
 
     @RequestMapping("/test")
@@ -57,8 +62,8 @@ public class UsersController {
                 usersService.updateUser(user);
                 // 进行登录，分发token
                 StpUtil.login(user.getUserId());
-                SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
-                return SaResult.data(tokenInfo);
+//                return SaResult.ok("登陆成功");
+                return SaResult.data(user);
             }
         }
         return SaResult.error("登录失败：用户名或密码错误");
@@ -77,35 +82,50 @@ public class UsersController {
     @RequestMapping("/register")
     public SaResult registerUser(String username, String password, String email) {
         // 检查用户名是否已存在
-        Users existingUser = usersService.selectByUsername(username);
-        if (existingUser != null) {
+        Users existingNameUser = usersService.selectByUsername(username);
+        if (existingNameUser != null) {
             return SaResult.error("用户名已存在");
+        }
+        Users existingEmailUser = usersService.selectByEmail(email);
+        if (existingEmailUser != null) {
+            return SaResult.error("邮箱已存在");
         }
 
         // 创建新用户
-        Users newUser = new Users();
-        newUser.setUsername(username);
-        // 哈希密码
-        newUser.setPasswordHash(DigestUtil.sha256Hex(password));
-        // 可选，设置邮箱
-        newUser.setEmail(email);
-        // 设置注册时间戳
-        newUser.setRegistrationTs(UtilityTools.getBeijingTimestamp());
-        // 设置最后登录时间戳
-        newUser.setLastLoginTs(UtilityTools.getBeijingTimestamp());
-        // 设置状态为活跃
-        newUser.setStatus("active");
-        // 1GB 存储配额
-        newUser.setStorageQuotaBytes(1073741824L);
-        // 初始使用空间为0
-        newUser.setUsedStorageBytes(0L);
-        // 默认不是管理员
-        newUser.setIsAdmin(0);
-
+        Users newUser = Users.builder()
+                .username(username)
+                .passwordHash(DigestUtil.sha256Hex(password))
+                // 可选，设置邮箱
+                .email(email)
+                .registrationTs(UtilityTools.getBeijingTimestamp())
+                .lastLoginTs(UtilityTools.getBeijingTimestamp())
+                // 设置状态为活跃
+                .status("active")
+                // 1GB 存储配额
+                .storageQuotaBytes(1073741824L)
+                // 初始使用空间为0
+                .usedStorageBytes(0L)
+                // 默认不是管理员
+                .isAdmin(0)
+                .build();
         // 插入新用户到数据库
-        usersService.insertUser(newUser);
+        try{
+            usersService.insertUser(newUser);
+        }catch (Exception e){
+            return SaResult.error(e.getMessage());
+        }
+        // 分配用户ID
 
-        return SaResult.ok("注册成功");
+        Long userId = usersService.selectByUsername(username).getUserId();
+        log.info("新用户注册成功，用户ID: {}", userId);
+        // 创建用户的存储目录
+        try{
+            minioStorageService.createDirectory(userId);
+        } catch (Exception e) {
+            return SaResult.error("文件夹已存在。");
+        }
+
+        return SaResult.ok("用户注册成功");
     }
 
     //    更新用户信息
@@ -134,7 +154,7 @@ public class UsersController {
         return SaResult.ok("用户信息更新成功");
     }
 
-//    检查是否是本人接口
+    //    检查是否是本人接口
     @Operation(summary = "检查是否是本人")
     @RequestMapping("/checkIsMe")
     public SaResult checkIsMe(String oldPwd) {
@@ -148,13 +168,13 @@ public class UsersController {
         return SaResult.ok("验证成功，您是本人");
     }
 
-//    修改密码接口
+    //    修改密码接口
     @Operation(summary = "修改密码")
     @RequestMapping("/updatePassword")
     public SaResult updatePassword(String newPassword) {
 
         Users user = usersService.getById(StpUtil.getLoginIdAsLong());
-        if(user.getPasswordHash().equals(DigestUtil.sha256Hex(newPassword))){
+        if (user.getPasswordHash().equals(DigestUtil.sha256Hex(newPassword))) {
             return SaResult.error("你的新密码与旧密码相同，请重新输入");
         }
         // 更新密码
