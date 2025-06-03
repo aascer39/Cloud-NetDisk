@@ -10,7 +10,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface UsersService extends IService<Users> {
     Users selectByUsername(String username);
-    Users selectByEmail(String username);
+    Users selectByEmail(String email);
+    Users selectByUserId(Long userId);
     void insertUser(Users user);
     void updateUser(Users user);
     void deleteUser(Long userId);

@@ -56,5 +56,11 @@
         from users
         where email = #{email}
     </select>
+    <select id="selectByUserId" resultType="com.zjj.netdisk.entity.Users">
+        select
+        <include refid="Base_Column_List" />
+        from users
+        where user_id = #{userId}
+    </select>
 
 </mapper>

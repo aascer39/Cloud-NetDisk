@@ -1,11 +1,10 @@
 package com.zjj.netdisk.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StreamUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
@@ -33,60 +32,35 @@ public class UtilityTools {
     }
 
     /**
-     * 计算指定文件的 SHA-256 哈希值。
+     * 计算 InputStream 内容的 SHA-256 哈希值。
+     * <p>
+     * <b>重要:</b> 此方法会完整消耗(读取)传入的 InputStream。
+     * 如果后续还需要使用原始数据流，调用方必须重新获取一个新的 InputStream。
+     * </p>
      *
-     * @param file 要计算哈希值的文件对象
-     * @return 文件的 SHA-256 哈希值 (十六进制字符串)，如果发生错误则返回 null。
+     * @param inputStream 要计算哈希的输入流。
+     * @return 表示文件内容的 SHA-256 哈希值的十六进制字符串。
+     * @throws NoSuchAlgorithmException 如果系统中不支持 SHA-256 算法。
+     * @throws IOException 如果在读取输入流时发生 I/O 错误。
      */
-    public static String getFileSha256ByFile(File file) {
-        if (file == null || !file.exists() || !file.isFile()) {
-            System.err.println("错误：文件为空、不存在或不是一个有效的文件。");
-            return null;
+    public static String getFileHash(InputStream inputStream) throws NoSuchAlgorithmException, IOException {
+        if (inputStream == null) {
+            throw new IllegalArgumentException("Input stream cannot be null.");
         }
 
-        MessageDigest digest;
-        try {
-            digest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            // SHA-256 是标准算法，此异常理论上不应发生
-            System.err.println("错误：无法获取 SHA-256 算法实例。" + e.getMessage());
-            // 在实际应用中，可能需要向上抛出异常或进行更复杂的错误处理
-            return null;
+        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+
+        // DigestInputStream 会在读取流的同时更新 MessageDigest
+        // 使用 try-with-resources 确保 DigestInputStream 被正确关闭
+        try (DigestInputStream dis = new DigestInputStream(inputStream, sha256)) {
+            // 消耗整个流以完成哈希计算。
+            StreamUtils.copy(dis, OutputStream.nullOutputStream());
         }
 
-        // 使用 try-with-resources 确保 FileInputStream 自动关闭
-        try (InputStream is = new FileInputStream(file)) {
-            // 创建一个缓冲区来读取文件内容
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            // 逐块读取文件内容，并更新 MessageDigest
-            while ((bytesRead = is.read(buffer)) != -1) {
-                digest.update(buffer, 0, bytesRead);
-            }
-        } catch (IOException e) {
-            System.err.println("错误：读取文件时发生 IO 异常。" + e.getMessage());
-            return null;
-        }
-
-        // 完成哈希计算，获取字节数组形式的哈希值
-        byte[] hashedBytes = digest.digest();
-
-        // 将字节数组转换为十六进制字符串
-        return bytesToHexString(hashedBytes);
-    }
-
-    /**
-     * 计算指定文件路径的 SHA-256 哈希值。
-     *
-     * @param filePath 文件的完整路径
-     * @return 文件的 SHA-256 哈希值 (十六进制字符串)，如果发生错误则返回 null。
-     */
-    public static String getFileSha256ByPath(String filePath) {
-        if (filePath == null || filePath.isEmpty()) {
-            System.err.println("错误：文件路径不能为空。");
-            return null;
-        }
-        return getFileSha256ByFile(new File(filePath));
+        // 当流被完全读取并且 DigestInputStream 关闭后，从 MessageDigest 实例获取哈希值
+        byte[] hashBytes = sha256.digest();
+        // 使用你项目中的字节转十六进制方法
+        return UtilityTools.bytesToHexString(hashBytes);
     }
 
 

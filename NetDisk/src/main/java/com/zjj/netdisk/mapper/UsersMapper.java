@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface UsersMapper extends BaseMapper<Users> {
     Users selectByUsername(String username);
     Users selectByEmail(String username);
+    Users selectByUserId(Long userId);
     void insertUser(Users user);
     void updateUser(Users user);
     void deleteUser(Long userId);
