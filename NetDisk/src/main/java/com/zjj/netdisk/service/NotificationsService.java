@@ -1,6 +1,6 @@
 package com.zjj.netdisk.service;
 
-import com.zjj.netdisk.entity.Notifications;
+import com.zjj.netdisk.entity.DTO.NotificationsDTO;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -8,6 +8,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 * @description 针对表【notifications(消息通知表)】的数据库操作Service
 * @createDate 2025-05-29 13:53:21
 */
-public interface NotificationsService extends IService<Notifications> {
+public interface NotificationsService extends IService<NotificationsDTO> {
 
 }

@@ -1,7 +1,7 @@
 package com.zjj.netdisk.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zjj.netdisk.entity.Users;
+import com.zjj.netdisk.entity.DTO.UsersDTO;
 import com.zjj.netdisk.service.UsersService;
 import com.zjj.netdisk.mapper.UsersMapper;
 import org.springframework.stereotype.Service;
@@ -12,16 +12,16 @@ import org.springframework.stereotype.Service;
  * @createDate 2025-05-31 00:35:03
  */
 @Service
-public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users>
+public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
         implements UsersService {
 
     @Override
-    public Users selectByUsername(String username) {
+    public UsersDTO selectByUsername(String username) {
         return baseMapper.selectByUsername(username);
     }
 
     @Override
-    public void insertUser(Users user) {
+    public void insertUser(UsersDTO user) {
         try {
             baseMapper.insertUser(user);
         } catch (Exception e) {
@@ -31,7 +31,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users>
     }
 
     @Override
-    public void updateUser(Users user) {
+    public void updateUser(UsersDTO user) {
         baseMapper.updateUser(user);
     }
 
@@ -41,12 +41,12 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users>
     }
 
     @Override
-    public Users selectByEmail(String email) {
+    public UsersDTO selectByEmail(String email) {
         return baseMapper.selectByEmail(email);
     }
 
     @Override
-    public Users selectByUserId(Long userId) {
+    public UsersDTO selectByUserId(Long userId) {
         return baseMapper.selectByUserId(userId);
     }
 }

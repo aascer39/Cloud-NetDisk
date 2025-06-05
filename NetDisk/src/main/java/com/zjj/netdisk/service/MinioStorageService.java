@@ -11,7 +11,7 @@ import java.util.List;
 public interface MinioStorageService {
     void uploadFiles(List<MultipartFile> files, long userId);
 
-    void downloadFile(String objectName, String filePath);
+//    void downloadFile(String objectName, long userId);
+
     StatObjectResponse statObject(String objectName) throws Exception;
-    void createDirectory(Long userId) throws Exception;
 }

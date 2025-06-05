@@ -11,15 +11,15 @@ spring:
   # Spring Data Redis 配置
   data:
     redis:
-      host: 192.168.75.130   # Redis 服务器地址，默认为 localhost
+      host: 192.168.75.130
       port: 6379        # Redis 服务器端口，默认为 6379
       password: 123456
       timeout: 3000ms   # 连接超时时间（毫秒）
   servlet:
     multipart:
       enabled: true
-      max-file-size: 100MB
-      max-request-size: 105MB
+      max-file-size: 1000MB
+      max-request-size: 1050MB
 
 server:
   servlet: # 正确的缩进

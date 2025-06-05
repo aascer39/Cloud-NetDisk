@@ -1,4 +1,4 @@
-package com.zjj.netdisk.entity;
+package com.zjj.netdisk.entity.DTO;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -7,7 +7,6 @@ import java.util.Date;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.experimental.Accessors;
 
 /**
  * 用户信息表
@@ -17,7 +16,7 @@ import lombok.experimental.Accessors;
 @TableName(value ="users")
 @Data
 @Builder
-public class Users {
+public class UsersDTO {
     /**
      * 用户唯一标识符，主键，自增
      */
@@ -85,7 +84,7 @@ public class Users {
         if (getClass() != that.getClass()) {
             return false;
         }
-        Users other = (Users) that;
+        UsersDTO other = (UsersDTO) that;
         return (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
             && (this.getUsername() == null ? other.getUsername() == null : this.getUsername().equals(other.getUsername()))
             && (this.getPasswordHash() == null ? other.getPasswordHash() == null : this.getPasswordHash().equals(other.getPasswordHash()))

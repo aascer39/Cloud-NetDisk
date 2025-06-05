@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zjj.netdisk.mapper.UserFilesMapper">
 
-    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.UserFiles">
+    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.DTO.UserFilesDTO">
             <id property="fileId" column="file_id" />
             <result property="userId" column="user_id" />
             <result property="parentFolder" column="parent_folder" />
@@ -24,7 +24,7 @@
         file_size_bytes,file_hash_fk,status,creation_ts,modification_ts,
         deleted_ts
     </sql>
-    <insert id="insertUserFiles" parameterType="com.zjj.netdisk.entity.UserFiles">
+    <insert id="insertUserFiles" parameterType="com.zjj.netdisk.entity.DTO.UserFilesDTO">
         INSERT INTO user_files (
             user_id, parent_folder, item_name, item_type, mime_type,
             file_size_bytes, file_hash_fk, status, creation_ts, modification_ts

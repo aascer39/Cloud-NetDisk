@@ -1,7 +1,7 @@
 package com.zjj.netdisk.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zjj.netdisk.entity.TransferTasks;
+import com.zjj.netdisk.entity.DTO.TransferTasksDTO;
 import com.zjj.netdisk.service.TransferTasksService;
 import com.zjj.netdisk.mapper.TransferTasksMapper;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 * @createDate 2025-05-29 13:53:21
 */
 @Service
-public class TransferTasksServiceImpl extends ServiceImpl<TransferTasksMapper, TransferTasks>
+public class TransferTasksServiceImpl extends ServiceImpl<TransferTasksMapper, TransferTasksDTO>
     implements TransferTasksService{
 
 }

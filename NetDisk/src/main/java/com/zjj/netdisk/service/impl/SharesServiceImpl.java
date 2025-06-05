@@ -1,7 +1,7 @@
 package com.zjj.netdisk.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zjj.netdisk.entity.Shares;
+import com.zjj.netdisk.entity.DTO.SharesDTO;
 import com.zjj.netdisk.service.SharesService;
 import com.zjj.netdisk.mapper.SharesMapper;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 * @createDate 2025-05-29 13:53:21
 */
 @Service
-public class SharesServiceImpl extends ServiceImpl<SharesMapper, Shares>
+public class SharesServiceImpl extends ServiceImpl<SharesMapper, SharesDTO>
     implements SharesService{
 
 }

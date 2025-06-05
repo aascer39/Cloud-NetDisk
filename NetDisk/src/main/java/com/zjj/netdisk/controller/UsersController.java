@@ -5,7 +5,7 @@ package com.zjj.netdisk.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import cn.hutool.crypto.digest.DigestUtil;
-import com.zjj.netdisk.entity.Users;
+import com.zjj.netdisk.entity.DTO.UsersDTO;
 import com.zjj.netdisk.service.MinioStorageService;
 import com.zjj.netdisk.service.UsersService;
 import com.zjj.netdisk.utils.UtilityTools;
@@ -36,7 +36,7 @@ public class UsersController {
 
     @RequestMapping("/test")
     public Object test() {
-        Users user = usersService.getById(1004);
+        UsersDTO user = usersService.getById(1004);
         return user;
     }
 
@@ -44,7 +44,7 @@ public class UsersController {
     @Operation(summary = "用户登录")
     @RequestMapping("/doLogin")
     public SaResult doLogin(String name, String pwd) {
-        Users user = usersService.selectByUsername(name);
+        UsersDTO user = usersService.selectByUsername(name);
         if (user == null) {
             return SaResult.error("用户不存在");
         }
@@ -82,17 +82,17 @@ public class UsersController {
     @RequestMapping("/register")
     public SaResult registerUser(String username, String password, String email) {
         // 检查用户名是否已存在
-        Users existingNameUser = usersService.selectByUsername(username);
+        UsersDTO existingNameUser = usersService.selectByUsername(username);
         if (existingNameUser != null) {
             return SaResult.error("用户名已存在");
         }
-        Users existingEmailUser = usersService.selectByEmail(email);
+        UsersDTO existingEmailUser = usersService.selectByEmail(email);
         if (existingEmailUser != null) {
             return SaResult.error("邮箱已存在");
         }
 
         // 创建新用户
-        Users newUser = Users.builder()
+        UsersDTO newUser = UsersDTO.builder()
                 .username(username)
                 .passwordHash(DigestUtil.sha256Hex(password))
                 // 可选，设置邮箱
@@ -118,13 +118,6 @@ public class UsersController {
 
         Long userId = usersService.selectByUsername(username).getUserId();
         log.info("新用户注册成功，用户ID: {}", userId);
-        // 创建用户的存储目录
-        try{
-            minioStorageService.createDirectory(userId);
-        } catch (Exception e) {
-            return SaResult.error("文件夹已存在。");
-        }
-
         return SaResult.ok("用户注册成功");
     }
 
@@ -134,7 +127,7 @@ public class UsersController {
     public SaResult updateUser(String username, String email) {
         // 检查用户是否存在
         Long tokenUserId = StpUtil.getLoginIdAsLong();
-        Users user = usersService.getById(tokenUserId);
+        UsersDTO user = usersService.getById(tokenUserId);
         if (user == null) {
             return SaResult.error("用户不存在");
         }
@@ -159,7 +152,7 @@ public class UsersController {
     @RequestMapping("/checkIsMe")
     public SaResult checkIsMe(String oldPwd) {
         // 检查旧密码是否正确
-        Users user = usersService.getById(StpUtil.getLoginIdAsLong());
+        UsersDTO user = usersService.getById(StpUtil.getLoginIdAsLong());
         String hashPwd = user.getPasswordHash();
         String inputOldPasswordHash = DigestUtil.sha256Hex(oldPwd);
         if (!hashPwd.equals(inputOldPasswordHash)) {
@@ -173,7 +166,7 @@ public class UsersController {
     @RequestMapping("/updatePassword")
     public SaResult updatePassword(String newPassword) {
 
-        Users user = usersService.getById(StpUtil.getLoginIdAsLong());
+        UsersDTO user = usersService.getById(StpUtil.getLoginIdAsLong());
         if (user.getPasswordHash().equals(DigestUtil.sha256Hex(newPassword))) {
             return SaResult.error("你的新密码与旧密码相同，请重新输入");
         }

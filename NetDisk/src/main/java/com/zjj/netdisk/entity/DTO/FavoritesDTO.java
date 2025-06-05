@@ -1,19 +1,20 @@
-package com.zjj.netdisk.entity;
+package com.zjj.netdisk.entity.DTO;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
 import lombok.Data;
+
+import java.util.Date;
 
 /**
  * 用户收藏的文件或文件夹的关联表
+ * @author 34978
  * @TableName favorites
  */
 @TableName(value ="favorites")
 @Data
-public class Favorites {
+public class FavoritesDTO {
     /**
      * 收藏记录的唯一标识符，主键，自增
      */
@@ -46,7 +47,7 @@ public class Favorites {
         if (getClass() != that.getClass()) {
             return false;
         }
-        Favorites other = (Favorites) that;
+        FavoritesDTO other = (FavoritesDTO) that;
         return (this.getFavoriteId() == null ? other.getFavoriteId() == null : this.getFavoriteId().equals(other.getFavoriteId()))
             && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
             && (this.getUserFileId() == null ? other.getUserFileId() == null : this.getUserFileId().equals(other.getUserFileId()))

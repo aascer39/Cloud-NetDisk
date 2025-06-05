@@ -1,6 +1,6 @@
 package com.zjj.netdisk.mapper;
 
-import com.zjj.netdisk.entity.Notifications;
+import com.zjj.netdisk.entity.DTO.NotificationsDTO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @createDate 2025-05-29 13:53:21
 * @Entity com.zjj.netdisk.entity.Notifications
 */
-public interface NotificationsMapper extends BaseMapper<Notifications> {
+public interface NotificationsMapper extends BaseMapper<NotificationsDTO> {
 
 }
 

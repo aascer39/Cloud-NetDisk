@@ -1,7 +1,7 @@
 package com.zjj.netdisk.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zjj.netdisk.entity.UserFiles;
+import com.zjj.netdisk.entity.DTO.UserFilesDTO;
 import com.zjj.netdisk.service.UserFilesService;
 import com.zjj.netdisk.mapper.UserFilesMapper;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 * @createDate 2025-06-01 15:14:22
 */
 @Service
-public class UserFilesServiceImpl extends ServiceImpl<UserFilesMapper, UserFiles>
+public class UserFilesServiceImpl extends ServiceImpl<UserFilesMapper, UserFilesDTO>
     implements UserFilesService{
     private final UserFilesMapper userFilesMapper;
     public UserFilesServiceImpl(UserFilesMapper userFilesMapper) {
@@ -24,7 +24,7 @@ public class UserFilesServiceImpl extends ServiceImpl<UserFilesMapper, UserFiles
      * @param userFiles 用户文件对象
      */
     @Override
-    public void insertUserFiles(UserFiles userFiles) {
+    public void insertUserFiles(UserFilesDTO userFiles) {
         userFilesMapper.insertUserFiles(userFiles);
     }
 }

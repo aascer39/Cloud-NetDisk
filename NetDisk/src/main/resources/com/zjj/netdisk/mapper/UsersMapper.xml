@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zjj.netdisk.mapper.UsersMapper">
 
-    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.Users">
+    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.DTO.UsersDTO">
             <id property="userId" column="user_id" />
             <result property="username" column="username" />
             <result property="passwordHash" column="password_hash" />
@@ -44,19 +44,19 @@
     <delete id="deleteUser">
         delete from users where user_id = #{userId}
     </delete>
-    <select id="selectByUsername" resultType="com.zjj.netdisk.entity.Users">
+    <select id="selectByUsername" resultType="com.zjj.netdisk.entity.DTO.UsersDTO">
         select
         <include refid="Base_Column_List" />
         from users
         where username = #{username}
     </select>
-    <select id="selectByEmail" resultType="com.zjj.netdisk.entity.Users">
+    <select id="selectByEmail" resultType="com.zjj.netdisk.entity.DTO.UsersDTO">
         select
         <include refid="Base_Column_List" />
         from users
         where email = #{email}
     </select>
-    <select id="selectByUserId" resultType="com.zjj.netdisk.entity.Users">
+    <select id="selectByUserId" resultType="com.zjj.netdisk.entity.DTO.UsersDTO">
         select
         <include refid="Base_Column_List" />
         from users

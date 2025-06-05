@@ -1,8 +1,8 @@
 package com.zjj.netdisk.service.impl;
 
-import com.zjj.netdisk.entity.PhysicalFiles;
-import com.zjj.netdisk.entity.UserFiles;
-import com.zjj.netdisk.entity.Users;
+import com.zjj.netdisk.entity.DTO.PhysicalFilesDTO;
+import com.zjj.netdisk.entity.DTO.UserFilesDTO;
+import com.zjj.netdisk.entity.DTO.UsersDTO;
 import com.zjj.netdisk.exception.FileOperationException;
 import com.zjj.netdisk.service.MinioStorageService;
 import com.zjj.netdisk.service.PhysicalFilesService;
@@ -22,7 +22,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +39,7 @@ public class MinioStorageServiceImpl implements MinioStorageService {
     private final UsersService usersService;
 
     @Autowired
-    public MinioStorageServiceImpl(MinioClient minioClient, @Value("${minio.bucket}") String bucketName, PhysicalFilesService physicalFilesService, UserFilesService userFilesService,UsersService usersService) {
+    public MinioStorageServiceImpl(MinioClient minioClient, @Value("${minio.bucket}") String bucketName, PhysicalFilesService physicalFilesService, UserFilesService userFilesService, UsersService usersService) {
         this.minioClient = minioClient;
         this.bucketName = bucketName;
         this.physicalFilesService = physicalFilesService;
@@ -55,15 +54,15 @@ public class MinioStorageServiceImpl implements MinioStorageService {
             return;
         }
 
-        Users user = usersService.selectByUserId(userId);
-        long usedStorage =user.getUsedStorageBytes();
+        UsersDTO user = usersService.selectByUserId(userId);
+        long usedStorage = user.getUsedStorageBytes();
         for (MultipartFile file : files) {
             usedStorage += file.getSize();
         }
-        if (usedStorage>user.getStorageQuotaBytes()){
+        if (usedStorage > user.getStorageQuotaBytes()) {
             log.warn("用户 {} 的存储空间已满，无法上传文件。", userId);
             throw new FileOperationException("用户存储空间不足，无法上传文件");
-        }else{
+        } else {
             // 更新用户的已用存储空间
             user.setUsedStorageBytes(usedStorage);
             usersService.updateUser(user);
@@ -78,7 +77,7 @@ public class MinioStorageServiceImpl implements MinioStorageService {
         List<Path> tempFilesToDelete = new ArrayList<>();
 
         for (MultipartFile file : files) {
-            // 10MB，超过此大小将使用临时文件处理
+            // 100MB，超过此大小将使用临时文件处理
             long maxSizeForInMemoryProcessing = 100 * 1024 * 1024;
             if (file.isEmpty()) {
                 log.warn("跳过一个空文件 (userId: {})。", userId);
@@ -104,13 +103,13 @@ public class MinioStorageServiceImpl implements MinioStorageService {
                     continue;
                 }
 
-                PhysicalFiles physicalFile = physicalFilesService.selectByFileHash(fileHash);
-                // 用于 PhysicalFiles 和 SnowballObject 的大小
+                PhysicalFilesDTO physicalFile = physicalFilesService.selectByFileHash(fileHash);
+                // 用于 PhysicalFilesDTO 和 SnowballObject 的大小
                 long sizeForDbAndSnowball = originalFileSize;
 
                 if (physicalFile == null) {
-                    // 2a. 物理文件不存在 - 准备 SnowballObject 并创建 PhysicalFiles 记录
-                    String physicalObjectStorageName = userId + "/" + effectiveObjectName + UtilityTools.getBeijingTimestamp();
+                    // 2a. 物理文件不存在 - 准备 SnowballObject 并创建 PhysicalFilesDTO 记录
+                    String physicalObjectStorageName = userId + "/" + UtilityTools.getBeijingTimestamp() + "_" + effectiveObjectName;
                     InputStream streamForSnowballObject = null;
 
                     if (originalFileSize <= maxSizeForInMemoryProcessing) {
@@ -172,7 +171,7 @@ public class MinioStorageServiceImpl implements MinioStorageService {
                             )
                     );
 
-                    PhysicalFiles newPhysicalFile = PhysicalFiles.builder()
+                    PhysicalFilesDTO newPhysicalFile = PhysicalFilesDTO.builder()
                             .fileHash(fileHash)
                             // 存储实际准备的数据大小
                             .fileSizeBytes(sizeForDbAndSnowball)
@@ -189,9 +188,9 @@ public class MinioStorageServiceImpl implements MinioStorageService {
                     physicalFilesService.updatePhysicalFiles(physicalFile);
                 }
 
-                // 3. 创建 UserFiles 记录 (用户逻辑文件记录)
+                // 3. 创建 UserFilesDTO 记录 (用户逻辑文件记录)
                 String userLogicalParentFolder = userId + "/";
-                UserFiles userFile = UserFiles.builder()
+                UserFilesDTO userFile = UserFilesDTO.builder()
                         .userId(userId)
                         .fileHashFk(fileHash)
                         .fileSizeBytes(originalFileSize)
@@ -205,10 +204,10 @@ public class MinioStorageServiceImpl implements MinioStorageService {
                         .build();
                 try {
                     userFilesService.insertUserFiles(userFile);
-                    log.info("UserFiles 记录已创建: 用户ID='{}', 逻辑路径='{}{}'",
+                    log.info("UserFilesDTO 记录已创建: 用户ID='{}', 逻辑路径='{}{}'",
                             userId, userLogicalParentFolder, effectiveObjectName);
                 } catch (DataIntegrityViolationException e) {
-                    log.error("创建 UserFiles 记录失败 (可能文件名冲突): 用户ID='{}', 逻辑路径='{}{}'. 哈希='{}'. 错误: {}",
+                    log.error("创建 UserFilesDTO 记录失败 (可能文件名冲突): 用户ID='{}', 逻辑路径='{}{}'. 哈希='{}'. 错误: {}",
                             userId, userLogicalParentFolder, effectiveObjectName, fileHash, e.getMessage(), e);
                     // ... (补偿逻辑注释)
                 }
@@ -272,59 +271,58 @@ public class MinioStorageServiceImpl implements MinioStorageService {
         log.info("文件批量上传处理流程完成 (用户ID: {})。", userId);
     }
 
-    @Override
-    public void downloadFile(String objectName, String filePath) {
-        try {
-            minioClient.downloadObject(
-                    DownloadObjectArgs.builder()
-                            .bucket(bucketName)
-                            .object(objectName)
-                            .filename(filePath)
-                            .build());
-        } catch (ErrorResponseException e) {
-            String errMsg = String.format("MinIO 错误响应 (对象: %s): %s", objectName, e.errorResponse() != null ? e.errorResponse().message() : e.getMessage());
-            // 向上抛出自定义运行时异常
-            throw new FileOperationException(errMsg, e);
-        } catch (InsufficientDataException e) {
-            String errMsg = String.format("MinIO 数据不足 (对象: %s): %s", objectName, e.getMessage());
-            // 向上抛出自定义运行时异常
-            throw new FileOperationException(errMsg, e);
-        } catch (InternalException e) { // MinIO 内部服务器错误或网络错误
-            String errMsg = String.format("MinIO 内部错误 (对象: %s): %s", objectName, e.getMessage());
-            // 向上抛出自定义运行时异常
-            throw new FileOperationException(errMsg, e);
-        } catch (IOException e) { // 通常是文件系统相关的IO错误，比如写入filePath失败
-            String errMsg = String.format("文件IO错误 (对象: %s, 文件路径: %s): %s", objectName, filePath, e.getMessage());
-            // 向上抛出自定义运行时异常
-            throw new FileOperationException(errMsg, e);
-        } catch (InvalidKeyException | NoSuchAlgorithmException | XmlParserException | InvalidResponseException |
-                 ServerException | IllegalArgumentException e) {
-            // 其他特定的MinIO SDK异常或参数错误
-            // IllegalArgumentException 可能是由于 builder 参数问题导致
-            String errMsg = String.format("MinIO 操作或参数错误 (对象: %s): %s", objectName, e.getMessage());
-            // 向上抛出自定义运行时异常
-            throw new FileOperationException(errMsg, e);
-        } catch (Exception e) {
-            // 捕获所有其他未预料到的异常
-            String errMsg = String.format("下载文件时发生未知错误 (对象: %s): %s", objectName, e.toString());
-            // 避免重复包装 FileOperationException
-            if (e instanceof FileOperationException) {
-                throw (FileOperationException) e;
-            }
-            // 向上抛出自定义运行时异常
-            throw new FileOperationException(errMsg, e);
-        }
-    }
-
+    //    @Override
+//    public void downloadFile(String objectName, long userId) {
+//        try {
+//            minioClient.downloadObject(
+//                    DownloadObjectArgs.builder()
+//                            .bucket(bucketName)
+//                            .object(objectName)
+//                            .filename()
+//                            .build());
+//        } catch (ErrorResponseException e) {
+//            String errMsg = String.format("MinIO 错误响应 (对象: %s): %s", objectName, e.errorResponse() != null ? e.errorResponse().message() : e.getMessage());
+//            // 向上抛出自定义运行时异常
+//            throw new FileOperationException(errMsg, e);
+//        } catch (InsufficientDataException e) {
+//            String errMsg = String.format("MinIO 数据不足 (对象: %s): %s", objectName, e.getMessage());
+//            // 向上抛出自定义运行时异常
+//            throw new FileOperationException(errMsg, e);
+//        } catch (InternalException e) { // MinIO 内部服务器错误或网络错误
+//            String errMsg = String.format("MinIO 内部错误 (对象: %s): %s", objectName, e.getMessage());
+//            // 向上抛出自定义运行时异常
+//            throw new FileOperationException(errMsg, e);
+//        } catch (IOException e) { // 通常是文件系统相关的IO错误，比如写入filePath失败
+//            String errMsg = String.format("文件IO错误 (对象: %s, 文件路径: %s): %s", objectName, filePath, e.getMessage());
+//            // 向上抛出自定义运行时异常
+//            throw new FileOperationException(errMsg, e);
+//        } catch (InvalidKeyException | NoSuchAlgorithmException | XmlParserException | InvalidResponseException |
+//                 ServerException | IllegalArgumentException e) {
+//            // 其他特定的MinIO SDK异常或参数错误
+//            // IllegalArgumentException 可能是由于 builder 参数问题导致
+//            String errMsg = String.format("MinIO 操作或参数错误 (对象: %s): %s", objectName, e.getMessage());
+//            // 向上抛出自定义运行时异常
+//            throw new FileOperationException(errMsg, e);
+//        } catch (Exception e) {
+//            // 捕获所有其他未预料到的异常
+//            String errMsg = String.format("下载文件时发生未知错误 (对象: %s): %s", objectName, e.toString());
+//            // 避免重复包装 FileOperationException
+//            if (e instanceof FileOperationException) {
+//                throw (FileOperationException) e;
+//            }
+//            // 向上抛出自定义运行时异常
+//            throw new FileOperationException(errMsg, e);
+//        }
+//    }
+//
     @Override
     public StatObjectResponse statObject(String objectName) throws Exception {
         try {
-            StatObjectResponse stat = minioClient.statObject(
+            return minioClient.statObject(
                     StatObjectArgs.builder()
                             .bucket(bucketName)
                             .object(objectName)
                             .build());
-            return stat;
         } catch (ErrorResponseException e) {
             log.error("MinIO 错误响应: {}", e.errorResponse(), e);
             throw e;
@@ -337,27 +335,4 @@ public class MinioStorageServiceImpl implements MinioStorageService {
         }
     }
 
-    @Override
-    public void createDirectory(Long userId) throws Exception {
-        if (userId == null) {
-            throw new IllegalArgumentException("用户ID不能为空");
-        }
-        String directoryName = userId + "/";
-        try {
-            minioClient.putObject(
-                    PutObjectArgs.builder()
-                            .bucket(bucketName)
-                            .object(directoryName)
-                            .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
-                            .build());
-            log.info("目录 {} 成功创建在 MinIO 存储桶 {}", directoryName, bucketName);
-        } catch (ErrorResponseException e) {
-            log.error("MinIO 错误响应: {}", e.errorResponse(), e);
-            throw e;
-        } catch (InsufficientDataException | InternalException | InvalidKeyException |
-                 InvalidResponseException | NoSuchAlgorithmException | ServerException | XmlParserException e) {
-            log.error("创建目录时发生错误: {}", e.getMessage(), e);
-            throw e;
-        }
-    }
 }

@@ -1,4 +1,4 @@
-package com.zjj.netdisk.config;
+package com.zjj.netdisk.entity.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;

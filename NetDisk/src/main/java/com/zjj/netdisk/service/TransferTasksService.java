@@ -1,6 +1,6 @@
 package com.zjj.netdisk.service;
 
-import com.zjj.netdisk.entity.TransferTasks;
+import com.zjj.netdisk.entity.DTO.TransferTasksDTO;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -8,6 +8,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 * @description 针对表【transfer_tasks(传输任务表，支持断点续传和任务控制)】的数据库操作Service
 * @createDate 2025-05-29 13:53:21
 */
-public interface TransferTasksService extends IService<TransferTasks> {
+public interface TransferTasksService extends IService<TransferTasksDTO> {
 
 }

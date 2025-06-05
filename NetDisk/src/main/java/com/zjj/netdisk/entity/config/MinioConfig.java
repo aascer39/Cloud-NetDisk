@@ -1,4 +1,4 @@
-package com.zjj.netdisk.config;
+package com.zjj.netdisk.entity.config;
 
 import io.minio.MinioClient;
 import org.springframework.beans.factory.annotation.Value;

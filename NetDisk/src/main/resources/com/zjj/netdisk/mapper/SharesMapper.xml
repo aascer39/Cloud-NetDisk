@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zjj.netdisk.mapper.SharesMapper">
 
-    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.Shares">
+    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.DTO.SharesDTO">
             <id property="shareId" column="share_id" />
             <result property="userFileId" column="user_file_id" />
             <result property="sharerUserId" column="sharer_user_id" />

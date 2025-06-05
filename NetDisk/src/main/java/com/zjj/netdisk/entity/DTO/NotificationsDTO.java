@@ -1,11 +1,11 @@
-package com.zjj.netdisk.entity;
+package com.zjj.netdisk.entity.DTO;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
 import lombok.Data;
+
+import java.util.Date;
 
 /**
  * 消息通知表
@@ -13,7 +13,7 @@ import lombok.Data;
  */
 @TableName(value ="notifications")
 @Data
-public class Notifications {
+public class NotificationsDTO {
     /**
      * 通知唯一标识符，主键，自增
      */
@@ -66,7 +66,7 @@ public class Notifications {
         if (getClass() != that.getClass()) {
             return false;
         }
-        Notifications other = (Notifications) that;
+        NotificationsDTO other = (NotificationsDTO) that;
         return (this.getNotificationId() == null ? other.getNotificationId() == null : this.getNotificationId().equals(other.getNotificationId()))
             && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
             && (this.getTitle() == null ? other.getTitle() == null : this.getTitle().equals(other.getTitle()))
