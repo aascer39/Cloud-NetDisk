@@ -10,12 +10,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity com.zjj.netdisk.entity.DTO.UsersDTO
 */
 public interface UsersMapper extends BaseMapper<UsersDTO> {
-    UsersDTO selectByUsername(String username);
-    UsersDTO selectByEmail(String username);
-    UsersDTO selectByUserId(Long userId);
-    void insertUser(UsersDTO user);
-    void updateUser(UsersDTO user);
-    void deleteUser(Long userId);
 }
 
 

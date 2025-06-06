@@ -1,6 +1,7 @@
 package com.zjj.netdisk.service.impl;
 
 import com.zjj.netdisk.entity.DTO.PhysicalFilesDTO;
+import com.zjj.netdisk.pojo.UpdateUserDTO;
 import com.zjj.netdisk.entity.DTO.UserFilesDTO;
 import com.zjj.netdisk.entity.DTO.UsersDTO;
 import com.zjj.netdisk.exception.FileOperationException;
@@ -54,7 +55,7 @@ public class MinioStorageServiceImpl implements MinioStorageService {
             return;
         }
 
-        UsersDTO user = usersService.selectByUserId(userId);
+        UsersDTO user = usersService.getUserById(userId);
         long usedStorage = user.getUsedStorageBytes();
         for (MultipartFile file : files) {
             usedStorage += file.getSize();
@@ -64,8 +65,10 @@ public class MinioStorageServiceImpl implements MinioStorageService {
             throw new FileOperationException("用户存储空间不足，无法上传文件");
         } else {
             // 更新用户的已用存储空间
-            user.setUsedStorageBytes(usedStorage);
-            usersService.updateUser(user);
+            UpdateUserDTO updateUserDTO = UpdateUserDTO.builder()
+                    .usedStorageBytes(usedStorage)
+                    .build();
+            usersService.updateUser(userId, updateUserDTO);
             log.info("用户 {} 的存储空间已更新，当前已用空间: {} 字节。", userId, usedStorage);
         }
 

@@ -22,45 +22,4 @@
         user_id,username,password_hash,email,registration_ts,last_login_ts,
         status,storage_quota_bytes,used_storage_bytes,is_admin,last_password_update_ts
     </sql>
-    <insert id="insertUser">
-        insert into users (username,password_hash,email,registration_ts,last_login_ts,
-        status,storage_quota_bytes,used_storage_bytes,is_admin,last_password_update_ts)
-        values (#{username},#{passwordHash},#{email},#{registrationTs},#{lastLoginTs},
-        #{status},#{storageQuotaBytes},#{usedStorageBytes},#{isAdmin},#{lastPasswordUpdateTs})
-    </insert>
-    <update id="updateUser">
-        update users
-        set username = #{username},
-        password_hash = #{passwordHash},
-        email = #{email},
-        last_login_ts = #{lastLoginTs},
-        status = #{status},
-        storage_quota_bytes = #{storageQuotaBytes},
-        used_storage_bytes = #{usedStorageBytes},
-        is_admin = #{isAdmin},
-        last_password_update_ts = #{lastPasswordUpdateTs}
-        where user_id = #{userId}
-    </update>
-    <delete id="deleteUser">
-        delete from users where user_id = #{userId}
-    </delete>
-    <select id="selectByUsername" resultType="com.zjj.netdisk.entity.DTO.UsersDTO">
-        select
-        <include refid="Base_Column_List" />
-        from users
-        where username = #{username}
-    </select>
-    <select id="selectByEmail" resultType="com.zjj.netdisk.entity.DTO.UsersDTO">
-        select
-        <include refid="Base_Column_List" />
-        from users
-        where email = #{email}
-    </select>
-    <select id="selectByUserId" resultType="com.zjj.netdisk.entity.DTO.UsersDTO">
-        select
-        <include refid="Base_Column_List" />
-        from users
-        where user_id = #{userId}
-    </select>
-
 </mapper>

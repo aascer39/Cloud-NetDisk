@@ -1,21 +1,19 @@
 package com.zjj.netdisk.controller;
 
-// 导入 SaSecureUtil
-
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import cn.hutool.crypto.digest.DigestUtil;
+import com.zjj.netdisk.pojo.ApiResult;
+import com.zjj.netdisk.pojo.UpdatePasswordDTO;
+import com.zjj.netdisk.pojo.UpdateUserDTO;
 import com.zjj.netdisk.entity.DTO.UsersDTO;
-import com.zjj.netdisk.service.MinioStorageService;
+import com.zjj.netdisk.pojo.LoginDTO;
 import com.zjj.netdisk.service.UsersService;
 import com.zjj.netdisk.utils.UtilityTools;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Objects;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author 34978
@@ -26,56 +24,42 @@ import java.util.Objects;
 public class UsersController {
     // 假设你会用它来获取存储的用户信息
     private final UsersService usersService;
-    private final MinioStorageService minioStorageService ;
 
     @Autowired
-    public UsersController(UsersService usersService,MinioStorageService minioStorageService) {
+    public UsersController(UsersService usersService) {
         this.usersService = usersService;
-        this.minioStorageService = minioStorageService;
     }
 
     @RequestMapping("/test")
-    public Object test() {
-        UsersDTO user = usersService.getById(1004);
-        return user;
+    public ApiResult<?> test() {
+        UsersDTO user = usersService.getById(1018);
+        return ApiResult.success("返回数据", user);
     }
 
     // 会话登录接口
     @Operation(summary = "用户登录")
-    @RequestMapping("/doLogin")
-    public SaResult doLogin(String name, String pwd) {
-        UsersDTO user = usersService.selectByUsername(name);
-        if (user == null) {
-            return SaResult.error("用户不存在");
+    @PostMapping("/session")
+    public ApiResult<?> doLogin(@RequestBody LoginDTO loginDTO) {
+        try {
+            UsersDTO user = usersService.login(loginDTO);
+            StpUtil.login(user.getUserId());
+            return ApiResult.success("登陆成功!", user);
+        } catch (RuntimeException e) {
+            return ApiResult.error(404, e.getMessage());
         }
-        String hashPwd = user.getPasswordHash();
-        // 首先检查用户名
-        if (user.getUsername().equals(name)) {
-            // 第一步：将用户提交的密码进行哈希处理
-            String inputPasswordHash = DigestUtil.sha256Hex(pwd);
-
-            // 第二步：比较哈希后的输入密码与存储的哈希密码
-            if (hashPwd.equals(inputPasswordHash)) {
-                // 如果密码匹配，更新用户的最后登录时间戳
-                user.setLastLoginTs(UtilityTools.getBeijingTimestamp());
-                // 更新用户信息
-                usersService.updateUser(user);
-                // 进行登录，分发token
-                StpUtil.login(user.getUserId());
-//                return SaResult.ok("登陆成功");
-                return SaResult.data(user);
-            }
-        }
-        return SaResult.error("登录失败：用户名或密码错误");
     }
 
     // 会话登出接口
     @Operation(summary = "用户登出")
     @RequestMapping("/doLogout")
-    public SaResult doLogout() {
-        // 直接登出
-        StpUtil.logout();
-        return SaResult.ok("登出成功");
+    public ApiResult<?> doLogout() {
+        try {
+            // 直接登出
+            StpUtil.logout();
+            return ApiResult.success("登出成功", null);
+        } catch (Exception e) {
+            return ApiResult.error(500, e.getMessage());
+        }
     }
 
     @Operation(summary = "用户注册")
@@ -109,9 +93,9 @@ public class UsersController {
                 .isAdmin(0)
                 .build();
         // 插入新用户到数据库
-        try{
+        try {
             usersService.insertUser(newUser);
-        }catch (Exception e){
+        } catch (Exception e) {
             return SaResult.error(e.getMessage());
         }
         // 分配用户ID
@@ -123,27 +107,10 @@ public class UsersController {
 
     //    更新用户信息
     @Operation(summary = "更新用户信息")
-    @RequestMapping("/updateUser")
-    public SaResult updateUser(String username, String email) {
-        // 检查用户是否存在
-        Long tokenUserId = StpUtil.getLoginIdAsLong();
-        UsersDTO user = usersService.getById(tokenUserId);
-        if (user == null) {
-            return SaResult.error("用户不存在");
-        }
-
-//        判断是否存在相同的用户名和邮箱
-        if ((usersService.selectByUsername(username) != null) && (!Objects.equals(usersService.selectByUsername(username).getUsername(), username))) {
-            return SaResult.error("用户名已存在");
-        } else if ((usersService.selectByEmail(email) != null) && (!Objects.equals(usersService.selectByEmail(email).getEmail(), email))) {
-            return SaResult.error("邮箱已存在");
-        } else {
-            user.setUsername(username);
-            user.setEmail(email);
-        }
-        // 更新用户信息
-        usersService.updateUser(user);
-
+    @PutMapping("/updateUser")
+    public SaResult updateUser(@RequestBody UpdateUserDTO updateUserDTO) {
+        Long userId = StpUtil.getLoginIdAsLong();
+        usersService.updateUser(userId, updateUserDTO);
         return SaResult.ok("用户信息更新成功");
     }
 
@@ -164,28 +131,19 @@ public class UsersController {
     //    修改密码接口
     @Operation(summary = "修改密码")
     @RequestMapping("/updatePassword")
-    public SaResult updatePassword(String newPassword) {
-
-        UsersDTO user = usersService.getById(StpUtil.getLoginIdAsLong());
-        if (user.getPasswordHash().equals(DigestUtil.sha256Hex(newPassword))) {
-            return SaResult.error("你的新密码与旧密码相同，请重新输入");
-        }
-        // 更新密码
-        user.setPasswordHash(DigestUtil.sha256Hex(newPassword));
-        user.setLastPasswordUpdateTs(UtilityTools.getBeijingTimestamp());
-        usersService.updateUser(user);
-
-        return SaResult.ok("密码修改成功");
+    public ApiResult<?> updatePassword(@RequestBody UpdatePasswordDTO passwordDTO) {
+        Long userId = StpUtil.getLoginIdAsLong();
+        return usersService.updatePassword(userId, passwordDTO);
     }
 
     // 用户自己注销接口
     @Operation(summary = "注销")
     @RequestMapping("/deleteUser")
-    public SaResult deleteUser() {
+    public ApiResult<?> deleteUser() {
         Long tokenUserId = StpUtil.getLoginIdAsLong();
         // 普通用户，删除这个用户
         StpUtil.logout();
         usersService.deleteUser(tokenUserId);
-        return SaResult.ok("您的账号已被注销");
+        return ApiResult.success("用户注销成功", null);
     }
 }
