@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
  * @author 34978
  */
 @Configuration
-//@MapperScan("com.zjj.netdisk.mapper")
 public class MybatisPlusConfig {
 
     /**

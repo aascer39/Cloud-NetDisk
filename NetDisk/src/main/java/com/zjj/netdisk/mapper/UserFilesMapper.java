@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity com.zjj.netdisk.entity.DTO.UserFilesDTO
 */
 public interface UserFilesMapper extends BaseMapper<UserFilesDTO> {
-    void insertUserFiles(UserFilesDTO userFiles);
 }
 
 

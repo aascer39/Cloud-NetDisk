@@ -27,5 +27,5 @@ public interface UsersService extends IService<UsersDTO> {
 
     ApiResult<?> updatePassword(Long userId, UpdatePasswordDTO passwordDTO);
 
-    UsersDTO login(LoginDTO loginDTO);
+    ApiResult<?> login(LoginDTO loginDTO);
 }

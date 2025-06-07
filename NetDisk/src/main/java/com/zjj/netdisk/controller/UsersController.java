@@ -1,5 +1,6 @@
 package com.zjj.netdisk.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import cn.hutool.crypto.digest.DigestUtil;
@@ -40,18 +41,12 @@ public class UsersController {
     @Operation(summary = "用户登录")
     @PostMapping("/session")
     public ApiResult<?> doLogin(@RequestBody LoginDTO loginDTO) {
-        try {
-            UsersDTO user = usersService.login(loginDTO);
-            StpUtil.login(user.getUserId());
-            return ApiResult.success("登陆成功!", user);
-        } catch (RuntimeException e) {
-            return ApiResult.error(404, e.getMessage());
-        }
+        return usersService.login(loginDTO);
     }
 
     // 会话登出接口
     @Operation(summary = "用户登出")
-    @RequestMapping("/doLogout")
+    @PostMapping("/doLogout")
     public ApiResult<?> doLogout() {
         try {
             // 直接登出
@@ -108,6 +103,7 @@ public class UsersController {
     //    更新用户信息
     @Operation(summary = "更新用户信息")
     @PutMapping("/updateUser")
+    @SaCheckLogin
     public SaResult updateUser(@RequestBody UpdateUserDTO updateUserDTO) {
         Long userId = StpUtil.getLoginIdAsLong();
         usersService.updateUser(userId, updateUserDTO);
@@ -131,6 +127,7 @@ public class UsersController {
     //    修改密码接口
     @Operation(summary = "修改密码")
     @RequestMapping("/updatePassword")
+    @SaCheckLogin
     public ApiResult<?> updatePassword(@RequestBody UpdatePasswordDTO passwordDTO) {
         Long userId = StpUtil.getLoginIdAsLong();
         return usersService.updatePassword(userId, passwordDTO);

@@ -1,13 +1,11 @@
 package com.zjj.netdisk.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zjj.netdisk.pojo.ApiResult;
-import com.zjj.netdisk.pojo.UpdatePasswordDTO;
-import com.zjj.netdisk.pojo.UpdateUserDTO;
+import com.zjj.netdisk.pojo.*;
 import com.zjj.netdisk.entity.DTO.UsersDTO;
-import com.zjj.netdisk.pojo.LoginDTO;
 import com.zjj.netdisk.service.UsersService;
 import com.zjj.netdisk.mapper.UsersMapper;
 import com.zjj.netdisk.utils.UtilityTools;
@@ -136,17 +134,28 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
     }
 
     @Override
-    public UsersDTO login(LoginDTO loginDTO) {
+    public ApiResult<?> login(LoginDTO loginDTO) {
         QueryWrapper<UsersDTO> wrapper = new QueryWrapper<>();
         wrapper.eq("username", loginDTO.getUsername())
                 .eq("password_hash", DigestUtil.sha256Hex(loginDTO.getPassword()));
         UsersDTO user = baseMapper.selectOne(wrapper);
         if (user == null) {
-            throw new RuntimeException("用户名或密码错误");
+            return ApiResult.error(404, "用户名或密码错误");
+        }
+        if (user.getStatus() == "suspended") {
+            return ApiResult.error(403, "用户已被禁用");
+        }else if (user.getStatus() == "deleted") {
+            return ApiResult.error(410, "用户已被删除");
+
+        }
+        try{
+            StpUtil.login(user.getUserId());
+        }catch (RuntimeException e){
+            return ApiResult.error(500, "登录失败，请稍后再试");
         }
         user.setLastLoginTs(UtilityTools.getBeijingTimestamp());
         baseMapper.updateById(user);
-        return user;
+        return ApiResult.success("登陆成功", TokenVO.fromLoginResponse(user, StpUtil.getTokenInfo()));
     }
 
 }
