@@ -1,11 +1,14 @@
 package com.zjj.netdisk.service.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zjj.netdisk.pojo.*;
 import com.zjj.netdisk.entity.DTO.UsersDTO;
+import com.zjj.netdisk.pojo.*;
+import com.zjj.netdisk.satoken.StpKit;
 import com.zjj.netdisk.service.UsersService;
 import com.zjj.netdisk.mapper.UsersMapper;
 import com.zjj.netdisk.utils.UtilityTools;
@@ -144,18 +147,51 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
         }
         if (user.getStatus() == "suspended") {
             return ApiResult.error(403, "用户已被禁用");
-        }else if (user.getStatus() == "deleted") {
+        } else if (user.getStatus() == "deleted") {
             return ApiResult.error(410, "用户已被删除");
 
         }
-        try{
-            StpUtil.login(user.getUserId());
-        }catch (RuntimeException e){
+        try {
+            StpKit.USER.login(user.getUserId());
+        } catch (RuntimeException e) {
             return ApiResult.error(500, "登录失败，请稍后再试");
         }
         user.setLastLoginTs(UtilityTools.getBeijingTimestamp());
         baseMapper.updateById(user);
-        return ApiResult.success("登陆成功", TokenVO.fromLoginResponse(user, StpUtil.getTokenInfo()));
+        return ApiResult.success("登陆成功", TokenVO.fromUserLoginResponse(user, StpKit.USER.getTokenInfo()));
+    }
+
+    @Override
+    public IPage<UsersDTO> findUserPageWithQueryWrapper(PageDTO pageDTO) {
+        // 1. 创建分页对象
+        Page<UsersDTO> page = new Page<>(pageDTO.getCurrent(), pageDTO.getSize());
+
+        // 2. 构建动态查询条件 QueryWrapper
+        QueryWrapper<UsersDTO> queryWrapper = new QueryWrapper<>();
+
+        // 动态拼接条件：当 DTO 中的参数不为空时，才添加该查询条件
+
+        // like：按名称模糊查询
+        if (StringUtils.isNotBlank(pageDTO.getNameKeyword())) {
+            queryWrapper.like("username", pageDTO.getNameKeyword());
+        }
+
+        // eq：按状态精确查询
+        if (pageDTO.getStatus() != null) {
+            queryWrapper.eq("status", pageDTO.getStatus());
+        }
+
+        // likeRight：按邮箱域名查询（例如查询所有 @gmail.com 的邮箱）
+        if (StringUtils.isNotBlank(pageDTO.getEmailDomain())) {
+            queryWrapper.likeLeft("email", "@" + pageDTO.getEmailDomain());
+        }
+
+        // 你还可以添加排序等
+        queryWrapper.orderByDesc("registration_ts");
+
+        // 3. 调用 BaseMapper 的 selectPage 方法
+
+        return baseMapper.selectPage(page, queryWrapper);
     }
 
 }

@@ -1,17 +1,15 @@
 package com.zjj.netdisk.service;
 
-import com.zjj.netdisk.pojo.ApiResult;
-import com.zjj.netdisk.pojo.UpdatePasswordDTO;
-import com.zjj.netdisk.pojo.UpdateUserDTO;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zjj.netdisk.entity.DTO.UsersDTO;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zjj.netdisk.pojo.LoginDTO;
+import com.zjj.netdisk.pojo.*;
 
 /**
- * @author 34978
- * @description 针对表【users(用户信息表)】的数据库操作Service
- * @createDate 2025-05-31 00:35:03
- */
+* @author 34978
+* @description 针对表【users(用户信息表)】的数据库操作Service
+* @createDate 2025-06-11 11:46:05
+*/
 public interface UsersService extends IService<UsersDTO> {
     UsersDTO getUserById(Long userId);
 
@@ -28,4 +26,6 @@ public interface UsersService extends IService<UsersDTO> {
     ApiResult<?> updatePassword(Long userId, UpdatePasswordDTO passwordDTO);
 
     ApiResult<?> login(LoginDTO loginDTO);
+
+    IPage<UsersDTO> findUserPageWithQueryWrapper(PageDTO pageDTO);
 }

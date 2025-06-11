@@ -1,10 +1,10 @@
 package com.zjj.netdisk.pojo;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 // 引入 JSR 303/380 校验注解，增加接口的健壮性
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 import java.util.Date;
 

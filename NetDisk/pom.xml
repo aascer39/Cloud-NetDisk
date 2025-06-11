@@ -107,7 +107,7 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-jsqlparser</artifactId>
         </dependency>
-        <!--        Mybatis-Plus SQL 性能分析插件-->
+        <!--        Mybatis-Plus SQL 性能分析插件 p6spy-->
         <dependency>
             <groupId>com.github.gavlyukovskiy</groupId>
             <artifactId>p6spy-spring-boot-starter</artifactId>

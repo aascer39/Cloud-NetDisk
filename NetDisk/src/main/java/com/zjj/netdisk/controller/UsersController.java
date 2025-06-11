@@ -4,14 +4,15 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import cn.hutool.crypto.digest.DigestUtil;
+import com.zjj.netdisk.entity.DTO.UsersDTO;
 import com.zjj.netdisk.pojo.ApiResult;
 import com.zjj.netdisk.pojo.UpdatePasswordDTO;
 import com.zjj.netdisk.pojo.UpdateUserDTO;
-import com.zjj.netdisk.entity.DTO.UsersDTO;
 import com.zjj.netdisk.pojo.LoginDTO;
 import com.zjj.netdisk.service.UsersService;
 import com.zjj.netdisk.utils.UtilityTools;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/users")
+@Tag(name = "用户接口")
 public class UsersController {
     // 假设你会用它来获取存储的用户信息
     private final UsersService usersService;
@@ -85,7 +87,6 @@ public class UsersController {
                 // 初始使用空间为0
                 .usedStorageBytes(0L)
                 // 默认不是管理员
-                .isAdmin(0)
                 .build();
         // 插入新用户到数据库
         try {
@@ -103,7 +104,7 @@ public class UsersController {
     //    更新用户信息
     @Operation(summary = "更新用户信息")
     @PutMapping("/updateUser")
-    @SaCheckLogin
+    @SaCheckLogin(type = "user")
     public SaResult updateUser(@RequestBody UpdateUserDTO updateUserDTO) {
         Long userId = StpUtil.getLoginIdAsLong();
         usersService.updateUser(userId, updateUserDTO);
@@ -127,7 +128,7 @@ public class UsersController {
     //    修改密码接口
     @Operation(summary = "修改密码")
     @RequestMapping("/updatePassword")
-    @SaCheckLogin
+    @SaCheckLogin(type = "user")
     public ApiResult<?> updatePassword(@RequestBody UpdatePasswordDTO passwordDTO) {
         Long userId = StpUtil.getLoginIdAsLong();
         return usersService.updatePassword(userId, passwordDTO);
@@ -136,6 +137,7 @@ public class UsersController {
     // 用户自己注销接口
     @Operation(summary = "注销")
     @RequestMapping("/deleteUser")
+    @SaCheckLogin(type = "user")
     public ApiResult<?> deleteUser() {
         Long tokenUserId = StpUtil.getLoginIdAsLong();
         // 普通用户，删除这个用户

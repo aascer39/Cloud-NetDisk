@@ -69,8 +69,8 @@
             <option name="tableUIInfoList">
               <list>
                 <TableUIInfo>
-                  <option name="className" value="UserThirdPartyAuths" />
-                  <option name="tableName" value="user_third_party_auths" />
+                  <option name="className" value="Users" />
+                  <option name="tableName" value="users" />
                 </TableUIInfo>
               </list>
             </option>

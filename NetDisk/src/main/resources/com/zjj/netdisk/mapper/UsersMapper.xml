@@ -9,17 +9,17 @@
             <result property="username" column="username" />
             <result property="passwordHash" column="password_hash" />
             <result property="email" column="email" />
+            <result property="avatarUrl" column="avatar_url" />
             <result property="registrationTs" column="registration_ts" />
             <result property="lastLoginTs" column="last_login_ts" />
             <result property="status" column="status" />
             <result property="storageQuotaBytes" column="storage_quota_bytes" />
             <result property="usedStorageBytes" column="used_storage_bytes" />
-            <result property="isAdmin" column="is_admin" />
             <result property="lastPasswordUpdateTs" column="last_password_update_ts" />
     </resultMap>
 
     <sql id="Base_Column_List">
-        user_id,username,password_hash,email,registration_ts,last_login_ts,
-        status,storage_quota_bytes,used_storage_bytes,is_admin,last_password_update_ts
+        user_id,username,password_hash,email,avatar_url,registration_ts,
+        last_login_ts,status,storage_quota_bytes,used_storage_bytes,last_password_update_ts
     </sql>
 </mapper>

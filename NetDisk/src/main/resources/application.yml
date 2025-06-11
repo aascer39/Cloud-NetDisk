@@ -7,13 +7,13 @@ spring:
     username: root
     password: 123456
 
-#    调试SQL日志配置 (Debug Logging Configuration)
-#    p6spy:
-#      # 日志格式
-#      log-format: "\ntime:%(executionTime) || sql:%(sql)\n"
-#      # 自定义日志类
-#      logging: custom
-#      custom-appender-class: com.zjj.netdisk.entity.config.StdoutLogger
+    #    调试SQL日志配置 (Debug Logging Configuration)
+    p6spy:
+      # 日志格式
+      log-format: "\ntime:%(executionTime) || sql:%(sql)\n"
+      # 自定义日志类
+      logging: custom
+      custom-appender-class: com.zjj.netdisk.entity.config.StdoutLogger
 
     # ===================================================================
     # Druid 连接池详细配置 (Recommended Druid Pool Configuration)
@@ -90,7 +90,7 @@ spring:
       max-request-size: 1050MB
 
 server:
-  servlet: # 正确的缩进
+  servlet:
     context-path: /MikuNetDisk
   port: 8080
 
@@ -123,3 +123,4 @@ logging:
     org.springframework.web.servlet.mvc.method.annotation: DEBUG
     org.springframework.web.accept: DEBUG
     org.springframework.http.converter.json: DEBUG # 查看 Jackson 转换器日志
+
