@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zjj.netdisk.mapper.AdminsMapper">
+
+    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.DTO.AdminsDTO">
+            <id property="adminId" column="admin_id" />
+            <result property="username" column="username" />
+            <result property="passwordHash" column="password_hash" />
+            <result property="email" column="email" />
+            <result property="role" column="role" />
+            <result property="registrationTs" column="registration_ts" />
+            <result property="lastLoginTs" column="last_login_ts" />
+            <result property="status" column="status" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        admin_id,username,password_hash,email,role,registration_ts,
+        last_login_ts,status
+    </sql>
+</mapper>

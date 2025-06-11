@@ -77,8 +77,9 @@
         <dependency>
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-spring-boot3-starter</artifactId>
-            <version>1.43.0</version>
+            <version>1.44.0</version>
         </dependency>
+
 
         <!--        druid高性能链接池-->
         <!-- https://mvnrepository.com/artifact/com.alibaba/druid-spring-boot-3-starter -->
@@ -106,7 +107,7 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-jsqlparser</artifactId>
         </dependency>
-<!--        Mybatis-Plus SQL 性能分析插件-->
+        <!--        Mybatis-Plus SQL 性能分析插件-->
         <dependency>
             <groupId>com.github.gavlyukovskiy</groupId>
             <artifactId>p6spy-spring-boot-starter</artifactId>
@@ -122,9 +123,9 @@
         <dependency>
             <groupId>io.minio</groupId>
             <artifactId>minio</artifactId>
-            <version>8.5.9</version> <!-- 检查最新版本 -->
+            <version>8.5.17</version> <!-- 检查最新版本 -->
         </dependency>
-        <!--        Hutools依赖-->
+        <!-- HuTools依赖-->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
