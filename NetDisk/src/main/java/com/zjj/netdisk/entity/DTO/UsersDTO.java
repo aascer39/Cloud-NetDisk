@@ -1,9 +1,9 @@
 package com.zjj.netdisk.entity.DTO;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
 import java.util.Date;
 
 import lombok.Builder;
@@ -11,11 +11,9 @@ import lombok.Data;
 
 /**
  * 用户信息表
- *
- * @author 34978
  * @TableName users
  */
-@TableName(value = "users")
+@TableName(value ="users")
 @Data
 @Builder
 public class UsersDTO {
@@ -31,7 +29,7 @@ public class UsersDTO {
     private String username;
 
     /**
-     * 哈希后的用户密码，确保安全
+     * 哈希后的用户密码，确保安全。第三方登录时可为空
      */
     private String passwordHash;
 
@@ -39,6 +37,11 @@ public class UsersDTO {
      * 用户邮箱，唯一，可为空
      */
     private String email;
+
+    /**
+     * 用户头像URL，可从QQ获取
+     */
+    private String avatarUrl;
 
     /**
      * 用户注册时间戳
@@ -66,11 +69,6 @@ public class UsersDTO {
     private Long usedStorageBytes;
 
     /**
-     * 布尔值，标记用户是否为管理员
-     */
-    private Integer isAdmin;
-
-    /**
      * 用户最后修改密码时间戳，可为空
      */
     private Date lastPasswordUpdateTs;
@@ -88,16 +86,16 @@ public class UsersDTO {
         }
         UsersDTO other = (UsersDTO) that;
         return (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
-                && (this.getUsername() == null ? other.getUsername() == null : this.getUsername().equals(other.getUsername()))
-                && (this.getPasswordHash() == null ? other.getPasswordHash() == null : this.getPasswordHash().equals(other.getPasswordHash()))
-                && (this.getEmail() == null ? other.getEmail() == null : this.getEmail().equals(other.getEmail()))
-                && (this.getRegistrationTs() == null ? other.getRegistrationTs() == null : this.getRegistrationTs().equals(other.getRegistrationTs()))
-                && (this.getLastLoginTs() == null ? other.getLastLoginTs() == null : this.getLastLoginTs().equals(other.getLastLoginTs()))
-                && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
-                && (this.getStorageQuotaBytes() == null ? other.getStorageQuotaBytes() == null : this.getStorageQuotaBytes().equals(other.getStorageQuotaBytes()))
-                && (this.getUsedStorageBytes() == null ? other.getUsedStorageBytes() == null : this.getUsedStorageBytes().equals(other.getUsedStorageBytes()))
-                && (this.getIsAdmin() == null ? other.getIsAdmin() == null : this.getIsAdmin().equals(other.getIsAdmin()))
-                && (this.getLastPasswordUpdateTs() == null ? other.getLastPasswordUpdateTs() == null : this.getLastPasswordUpdateTs().equals(other.getLastPasswordUpdateTs()));
+            && (this.getUsername() == null ? other.getUsername() == null : this.getUsername().equals(other.getUsername()))
+            && (this.getPasswordHash() == null ? other.getPasswordHash() == null : this.getPasswordHash().equals(other.getPasswordHash()))
+            && (this.getEmail() == null ? other.getEmail() == null : this.getEmail().equals(other.getEmail()))
+            && (this.getAvatarUrl() == null ? other.getAvatarUrl() == null : this.getAvatarUrl().equals(other.getAvatarUrl()))
+            && (this.getRegistrationTs() == null ? other.getRegistrationTs() == null : this.getRegistrationTs().equals(other.getRegistrationTs()))
+            && (this.getLastLoginTs() == null ? other.getLastLoginTs() == null : this.getLastLoginTs().equals(other.getLastLoginTs()))
+            && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
+            && (this.getStorageQuotaBytes() == null ? other.getStorageQuotaBytes() == null : this.getStorageQuotaBytes().equals(other.getStorageQuotaBytes()))
+            && (this.getUsedStorageBytes() == null ? other.getUsedStorageBytes() == null : this.getUsedStorageBytes().equals(other.getUsedStorageBytes()))
+            && (this.getLastPasswordUpdateTs() == null ? other.getLastPasswordUpdateTs() == null : this.getLastPasswordUpdateTs().equals(other.getLastPasswordUpdateTs()));
     }
 
     @Override
@@ -108,12 +106,12 @@ public class UsersDTO {
         result = prime * result + ((getUsername() == null) ? 0 : getUsername().hashCode());
         result = prime * result + ((getPasswordHash() == null) ? 0 : getPasswordHash().hashCode());
         result = prime * result + ((getEmail() == null) ? 0 : getEmail().hashCode());
+        result = prime * result + ((getAvatarUrl() == null) ? 0 : getAvatarUrl().hashCode());
         result = prime * result + ((getRegistrationTs() == null) ? 0 : getRegistrationTs().hashCode());
         result = prime * result + ((getLastLoginTs() == null) ? 0 : getLastLoginTs().hashCode());
         result = prime * result + ((getStatus() == null) ? 0 : getStatus().hashCode());
         result = prime * result + ((getStorageQuotaBytes() == null) ? 0 : getStorageQuotaBytes().hashCode());
         result = prime * result + ((getUsedStorageBytes() == null) ? 0 : getUsedStorageBytes().hashCode());
-        result = prime * result + ((getIsAdmin() == null) ? 0 : getIsAdmin().hashCode());
         result = prime * result + ((getLastPasswordUpdateTs() == null) ? 0 : getLastPasswordUpdateTs().hashCode());
         return result;
     }
@@ -128,13 +126,13 @@ public class UsersDTO {
         sb.append(", username=").append(username);
         sb.append(", passwordHash=").append(passwordHash);
         sb.append(", email=").append(email);
+        sb.append(", avatarUrl=").append(avatarUrl);
         sb.append(", registrationTs=").append(registrationTs);
         sb.append(", lastLoginTs=").append(lastLoginTs);
-        sb.append(", lastPasswordUpdateTs=").append(lastPasswordUpdateTs);
         sb.append(", status=").append(status);
         sb.append(", storageQuotaBytes=").append(storageQuotaBytes);
         sb.append(", usedStorageBytes=").append(usedStorageBytes);
-        sb.append(", isAdmin=").append(isAdmin);
+        sb.append(", lastPasswordUpdateTs=").append(lastPasswordUpdateTs);
         sb.append("]");
         return sb.toString();
     }
