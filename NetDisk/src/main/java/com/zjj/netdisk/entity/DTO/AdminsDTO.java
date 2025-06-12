@@ -4,7 +4,11 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 管理员信息表
@@ -12,6 +16,9 @@ import lombok.Data;
  */
 @TableName(value ="admins")
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class AdminsDTO {
     /**
      * 管理员唯一标识符，主键，自增

@@ -5,9 +5,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zjj.netdisk.entity.DTO.AdminsDTO;
 import com.zjj.netdisk.mapper.AdminsMapper;
+import com.zjj.netdisk.mapper.UsersMapper;
 import com.zjj.netdisk.pojo.ApiResult;
 import com.zjj.netdisk.pojo.LoginDTO;
-import com.zjj.netdisk.pojo.TokenVO;
+import com.zjj.netdisk.pojo.response.AdminLoginResponse;
 import com.zjj.netdisk.satoken.StpKit;
 import com.zjj.netdisk.service.AdminsService;
 import com.zjj.netdisk.utils.UtilityTools;
@@ -55,6 +56,16 @@ public class AdminsServiceImpl extends ServiceImpl<AdminsMapper, AdminsDTO>
         admin.setLastLoginTs(UtilityTools.getBeijingTimestamp());
         baseMapper.updateById(admin);
 
-        return ApiResult.success("登陆成功", TokenVO.fromAdminLoginResponse(admin, StpKit.ADMIN.getTokenInfo()));
+        return ApiResult.success("登陆成功", AdminLoginResponse.fromAdminLoginResponse(admin, StpKit.ADMIN.getTokenInfo()));
+    }
+
+    @Override
+    public ApiResult<?> logout(){
+        try {
+            StpKit.ADMIN.logout();
+            return ApiResult.success("登出成功");
+        } catch (Exception e) {
+            return ApiResult.error(500, "登出失败，请稍后再试");
+        }
     }
 }

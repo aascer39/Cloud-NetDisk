@@ -2,8 +2,10 @@ package com.zjj.netdisk.entity.DTO;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -14,6 +16,8 @@ import java.util.Date;
 @TableName(value ="physical_files")
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PhysicalFilesDTO {
     /**
      * 文件内容的唯一哈希值（例如 SHA-256），作为主键

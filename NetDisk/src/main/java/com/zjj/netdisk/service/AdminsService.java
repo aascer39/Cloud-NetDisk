@@ -14,4 +14,5 @@ public interface AdminsService extends IService<AdminsDTO> {
 
     ApiResult<?> login(LoginDTO loginDTO);
 
+    ApiResult<?> logout();
 }

@@ -4,18 +4,24 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.util.Date;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 用户信息表
+ *
  * @TableName users
  */
-@TableName(value ="users")
+@TableName(value = "users")
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UsersDTO {
     /**
      * 用户唯一标识符，主键，自增
@@ -86,16 +92,16 @@ public class UsersDTO {
         }
         UsersDTO other = (UsersDTO) that;
         return (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
-            && (this.getUsername() == null ? other.getUsername() == null : this.getUsername().equals(other.getUsername()))
-            && (this.getPasswordHash() == null ? other.getPasswordHash() == null : this.getPasswordHash().equals(other.getPasswordHash()))
-            && (this.getEmail() == null ? other.getEmail() == null : this.getEmail().equals(other.getEmail()))
-            && (this.getAvatarUrl() == null ? other.getAvatarUrl() == null : this.getAvatarUrl().equals(other.getAvatarUrl()))
-            && (this.getRegistrationTs() == null ? other.getRegistrationTs() == null : this.getRegistrationTs().equals(other.getRegistrationTs()))
-            && (this.getLastLoginTs() == null ? other.getLastLoginTs() == null : this.getLastLoginTs().equals(other.getLastLoginTs()))
-            && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
-            && (this.getStorageQuotaBytes() == null ? other.getStorageQuotaBytes() == null : this.getStorageQuotaBytes().equals(other.getStorageQuotaBytes()))
-            && (this.getUsedStorageBytes() == null ? other.getUsedStorageBytes() == null : this.getUsedStorageBytes().equals(other.getUsedStorageBytes()))
-            && (this.getLastPasswordUpdateTs() == null ? other.getLastPasswordUpdateTs() == null : this.getLastPasswordUpdateTs().equals(other.getLastPasswordUpdateTs()));
+                && (this.getUsername() == null ? other.getUsername() == null : this.getUsername().equals(other.getUsername()))
+                && (this.getPasswordHash() == null ? other.getPasswordHash() == null : this.getPasswordHash().equals(other.getPasswordHash()))
+                && (this.getEmail() == null ? other.getEmail() == null : this.getEmail().equals(other.getEmail()))
+                && (this.getAvatarUrl() == null ? other.getAvatarUrl() == null : this.getAvatarUrl().equals(other.getAvatarUrl()))
+                && (this.getRegistrationTs() == null ? other.getRegistrationTs() == null : this.getRegistrationTs().equals(other.getRegistrationTs()))
+                && (this.getLastLoginTs() == null ? other.getLastLoginTs() == null : this.getLastLoginTs().equals(other.getLastLoginTs()))
+                && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
+                && (this.getStorageQuotaBytes() == null ? other.getStorageQuotaBytes() == null : this.getStorageQuotaBytes().equals(other.getStorageQuotaBytes()))
+                && (this.getUsedStorageBytes() == null ? other.getUsedStorageBytes() == null : this.getUsedStorageBytes().equals(other.getUsedStorageBytes()))
+                && (this.getLastPasswordUpdateTs() == null ? other.getLastPasswordUpdateTs() == null : this.getLastPasswordUpdateTs().equals(other.getLastPasswordUpdateTs()));
     }
 
     @Override

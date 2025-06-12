@@ -3,7 +3,10 @@ package com.zjj.netdisk.entity.DTO;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -13,6 +16,9 @@ import java.util.Date;
  */
 @TableName(value ="shares")
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class SharesDTO {
     /**
      * 分享记录的唯一标识符，主键，自增

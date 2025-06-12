@@ -1,8 +1,7 @@
-package com.zjj.netdisk.pojo;
+package com.zjj.netdisk.pojo.response;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.zjj.netdisk.entity.DTO.AdminsDTO;
 import com.zjj.netdisk.entity.DTO.UsersDTO;
 import com.zjj.netdisk.utils.UtilityTools;
 import lombok.Builder;
@@ -15,7 +14,7 @@ import java.util.Date;
  */
 @Data
 @Builder
-public class TokenVO {
+public class UserLoginResponse {
     private String tokenName;
 
     private String tokenValue;
@@ -26,7 +25,6 @@ public class TokenVO {
 
     private String status;
 
-    private Integer isAdmin;
 
     private Long usedStorageBytes;
 
@@ -36,13 +34,15 @@ public class TokenVO {
 
     private String loginDeviceType;
 
+    private String records;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date lastLoginTs;
 
 
     // 一个静态方法用于从 UsersDTO 和 SaResult 转换成json
-    public static TokenVO fromUserLoginResponse(UsersDTO user, SaTokenInfo saTokenInfo) {
-        return TokenVO.builder()
+    public static UserLoginResponse fromUserLoginResponse(UsersDTO user, SaTokenInfo saTokenInfo) {
+        return UserLoginResponse.builder()
                 .tokenName(saTokenInfo.getTokenName())
                 .tokenValue(saTokenInfo.getTokenValue())
                 .loginId(user.getUserId())
@@ -50,19 +50,6 @@ public class TokenVO {
                 .status(user.getStatus().toString())
                 .usedStorageBytes(user.getUsedStorageBytes())
                 .storageQuotaBytes(user.getStorageQuotaBytes())
-                .loginType(saTokenInfo.getLoginType())
-                .loginDeviceType(saTokenInfo.getLoginDeviceType())
-                .lastLoginTs(UtilityTools.getBeijingTimestamp())
-                .build();
-    }
-
-    public static TokenVO fromAdminLoginResponse(AdminsDTO admin, SaTokenInfo saTokenInfo) {
-        return TokenVO.builder()
-                .tokenName(saTokenInfo.getTokenName())
-                .tokenValue(saTokenInfo.getTokenValue())
-                .loginId(admin.getAdminId())
-                .username(admin.getUsername())
-                .status(admin.getStatus().toString())
                 .loginType(saTokenInfo.getLoginType())
                 .loginDeviceType(saTokenInfo.getLoginDeviceType())
                 .lastLoginTs(UtilityTools.getBeijingTimestamp())

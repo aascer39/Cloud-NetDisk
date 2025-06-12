@@ -21,7 +21,7 @@ public interface UsersService extends IService<UsersDTO> {
 
     void updateUser(Long userId, UpdateUserDTO updateUserDTO);
 
-    void deleteUser(Long userId);
+    ApiResult<?> deleteUser(Long userId);
 
     ApiResult<?> updatePassword(Long userId, UpdatePasswordDTO passwordDTO);
 

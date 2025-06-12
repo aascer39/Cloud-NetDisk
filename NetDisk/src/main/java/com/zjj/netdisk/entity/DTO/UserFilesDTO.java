@@ -3,8 +3,10 @@ package com.zjj.netdisk.entity.DTO;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -15,6 +17,8 @@ import java.util.Date;
 @TableName(value ="user_files")
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserFilesDTO {
     /**
      * 文件或文件夹的唯一标识符，主键，自增

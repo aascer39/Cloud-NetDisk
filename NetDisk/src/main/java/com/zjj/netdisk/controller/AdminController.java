@@ -49,11 +49,23 @@ public class AdminController {
     @Operation(summary = "[管理员] 分页获取用户列表")
     @GetMapping("/page")
     @SaCheckLogin(type = "admin")
-    public ApiResult<?> listUsersByPage( PageDTO pageDTO) {
+    public ApiResult<?> listUsersByPage(PageDTO pageDTO) {
         log.info("管理员 {} 正在分页查询用户列表，参数: {}", StpKit.ADMIN.getLoginId(), pageDTO);
 
         IPage<UsersDTO> pageResult = usersService.findUserPageWithQueryWrapper(pageDTO);
 
         return ApiResult.success("查询成功", pageResult);
+    }
+
+    /**
+     * 管理员登出接口
+     *
+     * @return ApiResult
+     */
+    @Operation(summary = "管理员登出")
+    @PostMapping("/logout")
+    @SaCheckLogin(type = "admin")
+    public ApiResult<?> doLogout() {
+        return adminsService.logout();
     }
 }

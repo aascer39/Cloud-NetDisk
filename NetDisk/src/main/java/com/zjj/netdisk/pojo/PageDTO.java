@@ -15,6 +15,8 @@ public class PageDTO {
     private String nameKeyword;
     // 按状态精确查询
     private Integer status;
-    // 按邮箱后缀查询
-    private String emailDomain;
+
+    private String sortOrder;
+
+    private String sortField;
 }

@@ -4,14 +4,22 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 用户第三方认证关联表
+ * @author 34978
  * @TableName user_third_party_auths
  */
 @TableName(value ="user_third_party_auths")
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserThirdPartyAuthsDTO {
     /**
      * 主键

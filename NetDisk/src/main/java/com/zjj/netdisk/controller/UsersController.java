@@ -9,6 +9,7 @@ import com.zjj.netdisk.pojo.ApiResult;
 import com.zjj.netdisk.pojo.UpdatePasswordDTO;
 import com.zjj.netdisk.pojo.UpdateUserDTO;
 import com.zjj.netdisk.pojo.LoginDTO;
+import com.zjj.netdisk.satoken.StpKit;
 import com.zjj.netdisk.service.UsersService;
 import com.zjj.netdisk.utils.UtilityTools;
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,7 +53,7 @@ public class UsersController {
     public ApiResult<?> doLogout() {
         try {
             // 直接登出
-            StpUtil.logout();
+            StpKit.USER.logout();
             return ApiResult.success("登出成功", null);
         } catch (Exception e) {
             return ApiResult.error(500, e.getMessage());
@@ -62,6 +63,8 @@ public class UsersController {
     @Operation(summary = "用户注册")
     @RequestMapping("/register")
     public SaResult registerUser(String username, String password, String email) {
+        //TODO 注册重写到UserService里面
+
         // 检查用户名是否已存在
         UsersDTO existingNameUser = usersService.selectByUsername(username);
         if (existingNameUser != null) {
@@ -104,30 +107,15 @@ public class UsersController {
     //    更新用户信息
     @Operation(summary = "更新用户信息")
     @PutMapping("/updateUser")
-    @SaCheckLogin(type = "user")
+    @SaCheckLogin(type = "user,admin")
     public SaResult updateUser(@RequestBody UpdateUserDTO updateUserDTO) {
-        Long userId = StpUtil.getLoginIdAsLong();
-        usersService.updateUser(userId, updateUserDTO);
+        usersService.updateUser(updateUserDTO.getUserId(), updateUserDTO);
         return SaResult.ok("用户信息更新成功");
-    }
-
-    //    检查是否是本人接口
-    @Operation(summary = "检查是否是本人")
-    @RequestMapping("/checkIsMe")
-    public SaResult checkIsMe(String oldPwd) {
-        // 检查旧密码是否正确
-        UsersDTO user = usersService.getById(StpUtil.getLoginIdAsLong());
-        String hashPwd = user.getPasswordHash();
-        String inputOldPasswordHash = DigestUtil.sha256Hex(oldPwd);
-        if (!hashPwd.equals(inputOldPasswordHash)) {
-            return SaResult.error("旧密码错误");
-        }
-        return SaResult.ok("验证成功，您是本人");
     }
 
     //    修改密码接口
     @Operation(summary = "修改密码")
-    @RequestMapping("/updatePassword")
+    @PatchMapping("/updatePassword")
     @SaCheckLogin(type = "user")
     public ApiResult<?> updatePassword(@RequestBody UpdatePasswordDTO passwordDTO) {
         Long userId = StpUtil.getLoginIdAsLong();
@@ -135,14 +123,10 @@ public class UsersController {
     }
 
     // 用户自己注销接口
-    @Operation(summary = "注销")
-    @RequestMapping("/deleteUser")
-    @SaCheckLogin(type = "user")
-    public ApiResult<?> deleteUser() {
-        Long tokenUserId = StpUtil.getLoginIdAsLong();
-        // 普通用户，删除这个用户
-        StpUtil.logout();
-        usersService.deleteUser(tokenUserId);
-        return ApiResult.success("用户注销成功", null);
+    @Operation(summary = "删除用户")
+    @RequestMapping("/deleteUser/{userId}")
+    @SaCheckLogin(type = "admin")
+    public ApiResult<?> deleteUser(@PathVariable("userId") Long userId) {
+        return usersService.deleteUser(userId);
     }
 }
