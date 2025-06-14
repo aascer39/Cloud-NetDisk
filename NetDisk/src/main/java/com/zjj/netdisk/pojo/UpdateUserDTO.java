@@ -24,4 +24,5 @@ public class UpdateUserDTO {
     private Long usedStorageBytes ;
 
     private Date lastLoginTs;
+
 }

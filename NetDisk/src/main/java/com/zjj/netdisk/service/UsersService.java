@@ -6,10 +6,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.zjj.netdisk.pojo.*;
 
 /**
-* @author 34978
-* @description 针对表【users(用户信息表)】的数据库操作Service
-* @createDate 2025-06-11 11:46:05
-*/
+ * @author 34978
+ * @description 针对表【users(用户信息表)】的数据库操作Service
+ * @createDate 2025-06-11 11:46:05
+ */
 public interface UsersService extends IService<UsersDTO> {
     UsersDTO getUserById(Long userId);
 
@@ -28,4 +28,14 @@ public interface UsersService extends IService<UsersDTO> {
     ApiResult<?> login(LoginDTO loginDTO);
 
     IPage<UsersDTO> findUserPageWithQueryWrapper(PageDTO pageDTO);
+
+    ApiResult<?> suspendUser(Long userId);
+
+    ApiResult<?> unsuspendUser(Long userId);
+
+    ApiResult<?> resetPassword(Long userId);
+
+    ApiResult<?> registerUser(RegisterRequest registerRequest);
+
+    ApiResult<?> adminAddUser(String username, String email);
 }

@@ -1,7 +1,10 @@
 package com.zjj.netdisk.utils;
 
+import cn.hutool.core.util.HexUtil;
+import cn.hutool.core.util.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StreamUtils;
+import cn.hutool.crypto.SecureUtil;
 
 import java.io.*;
 import java.security.DigestInputStream;
@@ -41,7 +44,7 @@ public class UtilityTools {
      * @param inputStream 要计算哈希的输入流。
      * @return 表示文件内容的 SHA-256 哈希值的十六进制字符串。
      * @throws NoSuchAlgorithmException 如果系统中不支持 SHA-256 算法。
-     * @throws IOException 如果在读取输入流时发生 I/O 错误。
+     * @throws IOException              如果在读取输入流时发生 I/O 错误。
      */
     public static String getFileHash(InputStream inputStream) throws NoSuchAlgorithmException, IOException {
         if (inputStream == null) {
@@ -85,4 +88,8 @@ public class UtilityTools {
     }
 
 
+    public static String generateRandomPassword() {
+        // 生成一个包含大小写字母和数字的16位随机密码
+        return RandomUtil.randomString(16);
+    }
 }

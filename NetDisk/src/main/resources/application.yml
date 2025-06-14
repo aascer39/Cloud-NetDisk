@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://192.168.75.130:3306/cloud_disk?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost/cloud_disk?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     #配置 Druid 数据源
     type: com.alibaba.druid.pool.DruidDataSource
@@ -79,7 +79,7 @@ spring:
   # Spring Data Redis 配置
   data:
     redis:
-      host: 192.168.75.130
+      host: localhost
       port: 6379        # Redis 服务器端口，默认为 6379
       password: 123456
       timeout: 3000ms   # 连接超时时间（毫秒）
@@ -88,6 +88,20 @@ spring:
       enabled: true
       max-file-size: 1000MB
       max-request-size: 1050MB
+  mail:
+    # 邮件服务器地址
+    host: "smtp.qq.com"
+    port: 465
+    # 用于登录SMTP服务器的账号，通常就是你的发件人邮箱
+    username: "3497836942@qq.com"
+    # 注意：这不是邮箱的登录密码，而是QQ邮箱生成的授权码
+    password: "zmoyowvcosptdbij"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
 
 server:
   servlet:
@@ -103,7 +117,7 @@ sa-token:
   # token 最低活跃频率（单位：秒），如果 token 超过此时间没有访问系统就会被冻结，默认-1 代表不限制，永不冻结
   active-timeout: -1
   # 是否允许同一账号多地同时登录 （为 true 时允许一起登录, 为 false 时新登录挤掉旧登录）
-  is-concurrent: false
+  is-concurrent: true
   # 在多人登录同一账号时，是否共用一个 token （为 true 时所有登录共用一个 token, 为 false 时每次登录新建一个 token）
   is-share: false
   # token 风格（默认可取值：uuid、simple-uuid、random-32、random-64、random-128、tik）
@@ -113,7 +127,7 @@ sa-token:
   isColorLog: true
 
 minio:
-  endpoint: http://192.168.75.130:9000  # MinIO 服务器地址
+  endpoint: http://127.0.0.1:9000  # MinIO 服务器地址
   access-key: minioadmin    # 替换为你的 AccessKey
   secret-key: minioadmin     # 替换为你的 SecretKey
   bucket: netdisk-storage               # 默认存储桶名称
@@ -123,4 +137,9 @@ logging:
     org.springframework.web.servlet.mvc.method.annotation: DEBUG
     org.springframework.web.accept: DEBUG
     org.springframework.http.converter.json: DEBUG # 查看 Jackson 转换器日志
+# 自定义应用配置
+netdisk:
+  mail:
+    # 用于邮件发送时显示的昵称
+    display-name: "MikuNetDisk"
 

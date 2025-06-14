@@ -5,13 +5,9 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.zjj.netdisk.entity.DTO.UsersDTO;
-import com.zjj.netdisk.pojo.ApiResult;
-import com.zjj.netdisk.pojo.UpdatePasswordDTO;
-import com.zjj.netdisk.pojo.UpdateUserDTO;
-import com.zjj.netdisk.pojo.LoginDTO;
+import com.zjj.netdisk.pojo.*;
 import com.zjj.netdisk.satoken.StpKit;
 import com.zjj.netdisk.service.UsersService;
-import com.zjj.netdisk.utils.UtilityTools;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -61,47 +57,12 @@ public class UsersController {
     }
 
     @Operation(summary = "用户注册")
-    @RequestMapping("/register")
-    public SaResult registerUser(String username, String password, String email) {
-        //TODO 注册重写到UserService里面
-
-        // 检查用户名是否已存在
-        UsersDTO existingNameUser = usersService.selectByUsername(username);
-        if (existingNameUser != null) {
-            return SaResult.error("用户名已存在");
+    @PostMapping("/register")
+    public ApiResult<?> registerUser(@RequestBody RegisterRequest registerRequest) {
+        if (registerRequest.isNeedHashed()) {
+            registerRequest.setPassword(DigestUtil.sha256Hex(registerRequest.getPassword()));
         }
-        UsersDTO existingEmailUser = usersService.selectByEmail(email);
-        if (existingEmailUser != null) {
-            return SaResult.error("邮箱已存在");
-        }
-
-        // 创建新用户
-        UsersDTO newUser = UsersDTO.builder()
-                .username(username)
-                .passwordHash(DigestUtil.sha256Hex(password))
-                // 可选，设置邮箱
-                .email(email)
-                .registrationTs(UtilityTools.getBeijingTimestamp())
-                .lastLoginTs(UtilityTools.getBeijingTimestamp())
-                // 设置状态为活跃
-                .status("active")
-                // 1GB 存储配额
-                .storageQuotaBytes(1073741824L)
-                // 初始使用空间为0
-                .usedStorageBytes(0L)
-                // 默认不是管理员
-                .build();
-        // 插入新用户到数据库
-        try {
-            usersService.insertUser(newUser);
-        } catch (Exception e) {
-            return SaResult.error(e.getMessage());
-        }
-        // 分配用户ID
-
-        Long userId = usersService.selectByUsername(username).getUserId();
-        log.info("新用户注册成功，用户ID: {}", userId);
-        return SaResult.ok("用户注册成功");
+        return usersService.registerUser(registerRequest);
     }
 
     //    更新用户信息

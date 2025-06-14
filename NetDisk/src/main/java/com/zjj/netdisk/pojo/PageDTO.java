@@ -14,7 +14,7 @@ public class PageDTO {
     // 按名称模糊查询
     private String nameKeyword;
     // 按状态精确查询
-    private Integer status;
+    private String status;
 
     private String sortOrder;
 

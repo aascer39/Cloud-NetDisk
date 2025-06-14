@@ -3,6 +3,7 @@ package com.zjj.netdisk.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zjj.netdisk.entity.DTO.UsersDTO;
+import com.zjj.netdisk.pojo.AdminAddUserRequest;
 import com.zjj.netdisk.pojo.ApiResult;
 import com.zjj.netdisk.pojo.LoginDTO;
 import com.zjj.netdisk.pojo.PageDTO;
@@ -67,5 +68,37 @@ public class AdminController {
     @SaCheckLogin(type = "admin")
     public ApiResult<?> doLogout() {
         return adminsService.logout();
+    }
+
+    //    管理员添加新的用户
+    @Operation(summary = "管理员添加新用户")
+    @PostMapping("/addUser")
+    @SaCheckLogin(type = "admin")
+    public ApiResult<?> addUser(@RequestBody AdminAddUserRequest request) {
+        return usersService.adminAddUser(request.getUsername(), request.getEmail());
+    }
+
+    // 封禁用户
+    @Operation(summary = "封禁用户")
+    @PatchMapping("/suspendUser/{userId}")
+    @SaCheckLogin(type = "admin")
+    public ApiResult<?> suspendUser(@PathVariable("userId") Long userId) {
+        return usersService.suspendUser(userId);
+    }
+
+    // 解封用户
+    @Operation(summary = "解封用户")
+    @PatchMapping("/unsuspendUser/{userId}")
+    @SaCheckLogin(type = "admin")
+    public ApiResult<?> unsuspendUser(@PathVariable("userId") Long userId) {
+        return usersService.unsuspendUser(userId);
+    }
+
+    //重置登录密码
+    @Operation(summary = "重置登录密码")
+    @PatchMapping("/resetPassword/{userId}")
+    @SaCheckLogin(type = "admin")
+    public ApiResult<?> resetPassword(@PathVariable("userId") Long userId) {
+        return usersService.resetPassword(userId);
     }
 }
