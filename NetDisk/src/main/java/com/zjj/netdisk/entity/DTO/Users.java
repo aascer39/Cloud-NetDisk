@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
 /**
  * 用户信息表
  *
+ * @author 34978
  * @TableName users
  */
 @TableName(value = "users")
@@ -22,7 +24,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UsersDTO {
+public class Users implements Serializable {
     /**
      * 用户唯一标识符，主键，自增
      */
@@ -90,7 +92,7 @@ public class UsersDTO {
         if (getClass() != that.getClass()) {
             return false;
         }
-        UsersDTO other = (UsersDTO) that;
+        Users other = (Users) that;
         return (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
                 && (this.getUsername() == null ? other.getUsername() == null : this.getUsername().equals(other.getUsername()))
                 && (this.getPasswordHash() == null ? other.getPasswordHash() == null : this.getPasswordHash().equals(other.getPasswordHash()))

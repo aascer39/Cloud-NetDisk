@@ -1,15 +1,16 @@
 package com.zjj.netdisk.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zjj.netdisk.entity.DTO.UsersDTO;
+import com.zjj.netdisk.entity.DTO.Users;
 import com.zjj.netdisk.pojo.*;
+import com.zjj.netdisk.pojo.response.GlobalResponse;
 import com.zjj.netdisk.pojo.response.UserLoginResponse;
-import com.zjj.netdisk.satoken.StpKit;
 import com.zjj.netdisk.service.UsersService;
 import com.zjj.netdisk.mapper.UsersMapper;
 import com.zjj.netdisk.utils.EmailHelper;
@@ -17,6 +18,8 @@ import com.zjj.netdisk.utils.UtilityTools;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
@@ -34,7 +37,7 @@ import java.util.Set;
  */
 @Service
 @Slf4j
-public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
+public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users>
         implements UsersService {
     private final UsersMapper usersMapper;
     private final EmailHelper emailHelper;
@@ -47,20 +50,21 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
     }
 
     @Override
-    public UsersDTO getUserById(Long userId) {
+    public Users getUserById(Long userId) {
         return baseMapper.selectById(userId);
     }
 
 
     @Override
-    public UsersDTO selectByUsername(String username) {
-        QueryWrapper<UsersDTO> wrapper = new QueryWrapper<>();
+    public Users selectByUsername(String username) {
+        QueryWrapper<Users> wrapper = new QueryWrapper<>();
         wrapper.eq("username", username);
         return baseMapper.selectOne(wrapper);
     }
 
     @Override
-    public void insertUser(UsersDTO user) {
+    @CacheEvict(value = {"usersPage", "userInfo"}, allEntries = true)
+    public void insertUser(Users user) {
         try {
             baseMapper.insert(user);
         } catch (Exception e) {
@@ -71,15 +75,16 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
 
     @Override
     @Transactional
+    @CacheEvict(value = {"usersPage", "userInfo"}, allEntries = true)
     public void updateUser(Long userId, UpdateUserDTO updateUserDTO) {
         String newUsername = updateUserDTO.getUsername();
         String newEmail = updateUserDTO.getEmail();
 
         // 1. 校验用户名是否已被【其他】用户占用
         if (newUsername != null && !newUsername.isEmpty()) {
-            QueryWrapper<UsersDTO> usernameWrapper = new QueryWrapper<>();
+            QueryWrapper<Users> usernameWrapper = new QueryWrapper<>();
             usernameWrapper.eq("username", newUsername);
-            UsersDTO userWithSameName = this.getOne(usernameWrapper);
+            Users userWithSameName = this.getOne(usernameWrapper);
             if (userWithSameName != null && !userWithSameName.getUserId().equals(userId)) {
                 // 找到了同名用户，并且这个用户不是我们当前要修改的用户
                 throw new RuntimeException("用户名已被占用");
@@ -88,9 +93,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
 
         // 2. 校验邮箱是否已被【其他】用户占用
         if (newEmail != null && !newEmail.isEmpty()) {
-            QueryWrapper<UsersDTO> emailWrapper = new QueryWrapper<>();
+            QueryWrapper<Users> emailWrapper = new QueryWrapper<>();
             emailWrapper.eq("email", newEmail);
-            UsersDTO userWithSameEmail = this.getOne(emailWrapper);
+            Users userWithSameEmail = this.getOne(emailWrapper);
             if (userWithSameEmail != null && !userWithSameEmail.getUserId().equals(userId)) {
                 // 找到了同邮用户，并且这个用户不是我们当前要修改的用户
                 throw new RuntimeException("邮箱已被占用");
@@ -98,7 +103,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
         }
 
         // 3. 执行更新操作
-        UsersDTO userToUpdate = this.getById(userId);
+        Users userToUpdate = this.getById(userId);
         if (userToUpdate == null) {
             throw new RuntimeException("用户不存在");
         }
@@ -125,66 +130,67 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
     }
 
     @Override
-    public ApiResult<?> deleteUser(Long userId) {
+    @CacheEvict(value = {"usersPage", "userInfo"}, allEntries = true)
+    public GlobalResponse<?> deleteUser(Long userId) {
         // 执行删除操作
         int rowsAffected = baseMapper.deleteById(userId);
         if (rowsAffected != 0) {
-            return ApiResult.success("用户删除成功");
+            return GlobalResponse.success("用户删除成功");
         } else {
-            return ApiResult.error(404, "用户不存在或已被删除");
+            return GlobalResponse.error(404, "用户不存在或已被删除");
         }
     }
 
     @Override
-    public UsersDTO selectByEmail(String email) {
-        QueryWrapper<UsersDTO> wrapper = new QueryWrapper<>();
+    public Users selectByEmail(String email) {
+        QueryWrapper<Users> wrapper = new QueryWrapper<>();
         wrapper.eq("email", email);
         return baseMapper.selectOne(wrapper);
     }
 
     @Override
-    public ApiResult<?> updatePassword(Long userId, UpdatePasswordDTO passwordDTO) {
-        UsersDTO user = baseMapper.selectById(userId);
+    public GlobalResponse<?> updatePassword(Long userId, UpdatePasswordDTO passwordDTO) {
+        Users user = baseMapper.selectById(userId);
         if (user == null) {
-            return ApiResult.error(404, "用户不存在");
+            return GlobalResponse.error(404, "用户不存在");
         }
 
         String oldPwdHash = passwordDTO.getOldPassword();
         String newPwdHash = passwordDTO.getNewPassword();
         if (!oldPwdHash.equals(user.getPasswordHash())) {
-            return ApiResult.error(404, "旧密码错误");
+            return GlobalResponse.error(404, "旧密码错误");
         } else if (passwordDTO.getNewPassword() == null || passwordDTO.getNewPassword().isEmpty()) {
-            return ApiResult.error(400, "新密码不能为空");
+            return GlobalResponse.error(400, "新密码不能为空");
         } else if (newPwdHash.equals(oldPwdHash)) {
-            return ApiResult.error(400, "新密码不能与旧密码相同");
+            return GlobalResponse.error(400, "新密码不能与旧密码相同");
         }
         user.setPasswordHash(newPwdHash);
         user.setLastPasswordUpdateTs(passwordDTO.getLastPasswordUpdateTs());
         user.setLastPasswordUpdateTs(UtilityTools.getBeijingTimestamp());
         baseMapper.updateById(user);
-        return ApiResult.success("密码更新成功", null);
+        return GlobalResponse.success("密码更新成功", null);
     }
 
     @Override
-    public ApiResult<?> login(LoginDTO loginDTO) {
-        QueryWrapper<UsersDTO> wrapper = new QueryWrapper<>();
+    public GlobalResponse<?> login(LoginDTO loginDTO) {
+        QueryWrapper<Users> wrapper = new QueryWrapper<>();
         wrapper.eq("username", loginDTO.getUsername())
                 .eq("password_hash", DigestUtil.sha256Hex(loginDTO.getPassword()));
-        UsersDTO user = baseMapper.selectOne(wrapper);
+        Users user = baseMapper.selectOne(wrapper);
         if (user == null) {
-            return ApiResult.error(404, "用户名或密码错误");
+            return GlobalResponse.error(404, "用户名或密码错误");
         }
         if (user.getStatus() == "suspended") {
-            return ApiResult.error(403, "用户已被禁用");
+            return GlobalResponse.error(403, "用户已被禁用");
         }
         try {
-            StpKit.USER.login(user.getUserId());
+            StpUtil.login(user.getUserId());
         } catch (RuntimeException e) {
-            return ApiResult.error(500, "登录失败，请稍后再试");
+            return GlobalResponse.error(500, "登录失败，请稍后再试");
         }
         user.setLastLoginTs(UtilityTools.getBeijingTimestamp());
         baseMapper.updateById(user);
-        return ApiResult.success("登陆成功", UserLoginResponse.fromUserLoginResponse(user, StpKit.USER.getTokenInfo()));
+        return GlobalResponse.success("登陆成功", UserLoginResponse.fromUserLoginResponse(user, StpUtil.getTokenInfo()));
     }
 
     /**
@@ -194,7 +200,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
      * @return 分页后的用户数据
      */
     @Override
-    public IPage<UsersDTO> findUserPageWithQueryWrapper(PageDTO pageDTO) {
+    @Cacheable(value = "usersPage", key = "#pageDTO.current + '_' + #pageDTO.size + '_' + #pageDTO.nameKeyword+'_' + #pageDTO.status+ '_' + #pageDTO.sortField + '_' + #pageDTO.sortOrder")
+    public IPage<Users> findUserPageWithQueryWrapper(PageDTO pageDTO) {
+        log.info("缓存未命中，正在从数据库查询用户列表，当前页：{}, 每页大小：{}, 名称关键字：{}", pageDTO.getCurrent(), pageDTO.getSize(), pageDTO.getNameKeyword());
         // 1. 定义允许排序的字段白名单，增强安全性
         final Set<String> allowedSortFields = new HashSet<>(Arrays.asList(
                 "registration_ts",
@@ -206,10 +214,10 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
         ));
 
         // 2. 创建分页对象
-        Page<UsersDTO> page = new Page<>(pageDTO.getCurrent(), pageDTO.getSize());
+        Page<Users> page = new Page<>(pageDTO.getCurrent(), pageDTO.getSize());
 
         // 3. 构建动态查询条件 QueryWrapper
-        QueryWrapper<UsersDTO> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<Users> queryWrapper = new QueryWrapper<>();
 
         // 指定需要查询的列，避免查询不必要的字段
         queryWrapper.select(
@@ -249,39 +257,41 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
     }
 
     @Override
-    public ApiResult<?> suspendUser(Long userId) {
-        UsersDTO user = baseMapper.selectById(userId);
+    @CacheEvict(value = "usersPage", allEntries = true)
+    public GlobalResponse<?> suspendUser(Long userId) {
+        Users user = baseMapper.selectById(userId);
         if (user == null) {
-            return ApiResult.error(404, "用户不存在");
+            return GlobalResponse.error(404, "用户不存在");
         }
         if ("suspended".equals(user.getStatus())) {
-            return ApiResult.error(400, "用户已处于禁用状态");
+            return GlobalResponse.error(400, "用户已处于禁用状态");
         }
         user.setStatus("suspended");
         baseMapper.updateById(user);
-        return ApiResult.success("用户已被禁用", null);
+        return GlobalResponse.success("用户已被禁用", null);
     }
 
     @Override
-    public ApiResult<?> unsuspendUser(Long userId) {
-        UsersDTO user = baseMapper.selectById(userId);
+    @CacheEvict(value = "usersPage", allEntries = true)
+    public GlobalResponse<?> unsuspendUser(Long userId) {
+        Users user = baseMapper.selectById(userId);
         if (user == null) {
-            return ApiResult.error(404, "用户不存在");
+            return GlobalResponse.error(404, "用户不存在");
         }
         if (!"suspended".equals(user.getStatus())) {
-            return ApiResult.error(400, "用户未处于禁用状态");
+            return GlobalResponse.error(400, "用户未处于禁用状态");
         }
         // 恢复为活跃状态
         user.setStatus("active");
         baseMapper.updateById(user);
-        return ApiResult.success("用户已被恢复", null);
+        return GlobalResponse.success("用户已被恢复", null);
     }
 
     @Override
-    public ApiResult<?> resetPassword(Long userId) {
-        UsersDTO user = baseMapper.selectById(userId);
+    public GlobalResponse<?> resetPassword(Long userId) {
+        Users user = baseMapper.selectById(userId);
         if (user == null) {
-            return ApiResult.error(404, "用户不存在");
+            return GlobalResponse.error(404, "用户不存在");
         }
         String resetPassword = UtilityTools.generateRandomPassword();
         user.setPasswordHash(DigestUtil.sha256Hex(resetPassword));
@@ -309,31 +319,32 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
         } catch (Exception e) {
             // 处理异常，例如记录日志
             log.error("发送密码重置邮件时出错", e);
-            return ApiResult.error(500, "邮件发送失败，稍后再试。");
+            return GlobalResponse.error(500, "邮件发送失败，稍后再试。");
             // 这里可以决定是否向上抛出异常
         }
         baseMapper.updateById(user);
-        return ApiResult.success("密码重置成功,密码已发送至登记邮箱", null);
+        return GlobalResponse.success("密码重置成功,密码已发送至登记邮箱", null);
     }
 
     //    用户注册逻辑
     @Override
-    public ApiResult<?> registerUser(RegisterRequest registerRequest) {
+    @CacheEvict(value = "usersPage", allEntries = true)
+    public GlobalResponse<?> registerUser(RegisterRequest registerRequest) {
         // 检查用户名是否已存在
-        UsersDTO existingNameUser = selectByUsername(registerRequest.getUsername());
+        Users existingNameUser = selectByUsername(registerRequest.getUsername());
         if (existingNameUser != null) {
             log.error("用户名已存在{}", existingNameUser);
-            return ApiResult.error(400, "用户名已存在");
+            return GlobalResponse.error(400, "用户名已存在");
         }
         // 检查邮箱是否已存在
-        UsersDTO existingEmailUser = selectByEmail(registerRequest.getEmail());
+        Users existingEmailUser = selectByEmail(registerRequest.getEmail());
         if (existingEmailUser != null) {
             log.error("邮箱已存在{}", existingEmailUser);
-            return ApiResult.error(400, "邮箱已存在");
+            return GlobalResponse.error(400, "邮箱已存在");
         }
 
         // 创建新用户
-        UsersDTO newUser = UsersDTO.builder()
+        Users newUser = Users.builder()
                 .username(registerRequest.getUsername())
                 .passwordHash(registerRequest.getPassword())
                 .email(registerRequest.getEmail())
@@ -348,33 +359,34 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
         try {
             insertUser(newUser);
         } catch (Exception e) {
-            return ApiResult.error(500, "注册失败，请稍后再试");
+            return GlobalResponse.error(500, "注册失败，请稍后再试");
         }
 
         Long userId = selectByUsername(registerRequest.getUsername()).getUserId();
         log.info("新用户注册成功，用户ID: {}", userId);
-        return ApiResult.success("用户注册成功", null);
+        return GlobalResponse.success("用户注册成功", null);
     }
 
     @Override
-    public ApiResult<?> adminAddUser(String username, String email) {
+    @CacheEvict(value = "usersPage", allEntries = true)
+    public GlobalResponse<?> adminAddUser(String username, String email) {
         // 检查用户名是否已存在
-        UsersDTO existingNameUser = selectByUsername(username);
+        Users existingNameUser = selectByUsername(username);
         if (existingNameUser != null) {
             log.error("管理员添加的用户名已存在{}", existingNameUser);
-            return ApiResult.error(400, "用户名已存在");
+            return GlobalResponse.error(400, "用户名已存在");
         }
         // 检查邮箱是否已存在
-        UsersDTO existingEmailUser = selectByEmail(email);
+        Users existingEmailUser = selectByEmail(email);
         if (existingEmailUser != null) {
             log.error("管理员添加的邮箱已存在{}", existingEmailUser);
-            return ApiResult.error(400, "邮箱已存在");
+            return GlobalResponse.error(400, "邮箱已存在");
         }
 //        生成的临时密码
         String temPassword = UtilityTools.generateRandomPassword();
 
         // 创建新用户
-        UsersDTO newUser = UsersDTO.builder()
+        Users newUser = Users.builder()
                 .username(username)
                 .email(email)
                 // 存储到数据库的是哈希后的密码
@@ -405,7 +417,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
         } catch (Exception e) {
             // 处理异常，例如记录日志
             log.error("为新用户 {} 发送欢迎邮件时出错", newUser.getUsername(), e);
-            return ApiResult.error(500, "欢迎邮件发送失败，请稍后重试或联系管理员。");
+            return GlobalResponse.error(500, "欢迎邮件发送失败，请稍后重试或联系管理员。");
             // 这里可以决定是否向上抛出异常
         }
 
@@ -413,16 +425,16 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
         try {
             insertUser(newUser);
         } catch (Exception e) {
-            return ApiResult.error(500, "添加用户失败，请稍后再试");
+            return GlobalResponse.error(500, "添加用户失败，请稍后再试");
         }
 
         Long userId = selectByUsername(username).getUserId();
         log.info("管理员添加新用户成功，用户ID: {}", userId);
-        return ApiResult.success("用户添加成功", null);
+        return GlobalResponse.success("用户添加成功", null);
     }
 
     @NotNull
-    private static String getString(String htmlTemplate, UsersDTO newUser, String temPassword) {
+    private static String getString(String htmlTemplate, Users newUser, String temPassword) {
         String loginUrl = "http://localhost:5173/login";
 
 //        logo的url
@@ -437,7 +449,36 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, UsersDTO>
                 .replace("{{login_url}}", loginUrl)
                 .replace("{{logo_url}}", logoUrl);
     }
+
+    @Override
+    @CacheEvict(value = {"usersPage", "userInfo"}, allEntries = true)
+    public GlobalResponse<?> updateUserStorage(Long userId, Long storageLimit) {
+        Users user = baseMapper.selectById(userId);
+        if (user == null) {
+            return GlobalResponse.error(404, "用户不存在");
+        }
+        if (storageLimit < 0) {
+            return GlobalResponse.error(400, "存储限制不能为负数");
+        }
+        user.setStorageQuotaBytes(storageLimit);
+        baseMapper.updateById(user);
+        return GlobalResponse.success("存储限制更新成功", null);
+    }
+
+    @Override
+    @Cacheable(value = "userInfo", key = "#userId")
+    public GlobalResponse<?> getUserInfoById(Long userId) {
+        QueryWrapper<Users> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select(
+                "user_id", "username", "email", "status",
+                "used_storage_bytes", "storage_quota_bytes",
+                "last_login_ts", "registration_ts"
+        );
+        Users user = baseMapper.selectOne(queryWrapper);
+        return GlobalResponse.success("用户信息获取成功", user);
+    }
 }
+
 
 
 

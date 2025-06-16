@@ -2,11 +2,12 @@ package com.zjj.netdisk.pojo.response;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.zjj.netdisk.entity.DTO.AdminsDTO;
+import com.zjj.netdisk.entity.DTO.Admins;
 import com.zjj.netdisk.utils.UtilityTools;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Date;
  */
 @Data
 @Builder
-public class AdminLoginResponse {
+public class AdminLoginResponse implements Serializable {
     private String tokenName;
 
     private String tokenValue;
@@ -33,7 +34,7 @@ public class AdminLoginResponse {
     private Date lastLoginTs;
 
 
-    public static AdminLoginResponse fromAdminLoginResponse(AdminsDTO admin, SaTokenInfo saTokenInfo) {
+    public static AdminLoginResponse fromAdminLoginResponse(Admins admin, SaTokenInfo saTokenInfo) {
         return AdminLoginResponse.builder()
                 .tokenName(saTokenInfo.getTokenName())
                 .tokenValue(saTokenInfo.getTokenValue())

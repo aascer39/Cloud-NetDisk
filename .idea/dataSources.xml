@@ -14,7 +14,7 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="0@localhost" uuid="5debc019-06fc-454f-b438-c504b8a1b8fa">
+    <data-source source="LOCAL" name="Redis8@localhost" uuid="5debc019-06fc-454f-b438-c504b8a1b8fa">
       <driver-ref>redis</driver-ref>
       <synchronize>true</synchronize>
       <imported>true</imported>

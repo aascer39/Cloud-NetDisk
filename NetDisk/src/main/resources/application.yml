@@ -83,6 +83,14 @@ spring:
       port: 6379        # Redis 服务器端口，默认为 6379
       password: 123456
       timeout: 3000ms   # 连接超时时间（毫秒）
+  # Cache 配置
+  cache:
+    type: redis # 指定缓存类型为Redis
+    redis:
+      time-to-live: 1200000 # 全局默认过期时间，单位毫秒 (这里是10分钟)
+      key-prefix: "MikuNetDisk:"
+      use-key-prefix: true # 启用key前缀
+      cache-null-values: true # 允许缓存null值，防止缓存穿透
   servlet:
     multipart:
       enabled: true
@@ -142,4 +150,12 @@ netdisk:
   mail:
     # 用于邮件发送时显示的昵称
     display-name: "MikuNetDisk"
+
+#查看系统负载：http://localhost:8080/MikuNetDisk/actuator/metrics/system.cpu.usage
+management:
+  endpoints:
+    web:
+      exposure:
+        # 为了调试，我们先暴露所有端点，确保能看到
+        include: "metrics"
 

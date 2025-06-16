@@ -3,7 +3,7 @@ package com.zjj.netdisk.exception;
 import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.exception.NotPermissionException;
 import cn.dev33.satoken.exception.NotRoleException;
-import com.zjj.netdisk.pojo.ApiResult;
+import com.zjj.netdisk.pojo.response.GlobalResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
      * 当用户访问需要登录的接口但未登录时，Sa-Token会抛出此异常
      */
     @ExceptionHandler(NotLoginException.class)
-    public ApiResult<?> handleNotLoginException(NotLoginException e) {
+    public GlobalResponse<?> handleNotLoginException(NotLoginException e) {
         // 打印堆栈，方便开发阶段调试
         e.printStackTrace();
 
@@ -37,33 +37,33 @@ public class GlobalExceptionHandler {
         }
 
         // 返回给前端的JSON
-        return ApiResult.error(401, message);
+        return GlobalResponse.error(401, message);
     }
 
     /**
      * 捕获并处理“没有权限”异常
      */
     @ExceptionHandler(NotPermissionException.class)
-    public ApiResult<?> handleNotPermissionException(NotPermissionException e) {
+    public GlobalResponse<?> handleNotPermissionException(NotPermissionException e) {
         e.printStackTrace();
-        return ApiResult.error(403, "您没有访问该功能的权限：" + e.getPermission());
+        return GlobalResponse.error(403, "您没有访问该功能的权限：" + e.getPermission());
     }
 
     /**
      * 捕获并处理“没有角色”异常
      */
     @ExceptionHandler(NotRoleException.class)
-    public ApiResult<?> handleNotRoleException(NotRoleException e) {
+    public GlobalResponse<?> handleNotRoleException(NotRoleException e) {
         e.printStackTrace();
-        return ApiResult.error(403, "您没有访问该功能的权限，需要角色：" + e.getRole());
+        return GlobalResponse.error(403, "您没有访问该功能的权限，需要角色：" + e.getRole());
     }
 
     /**
      * 捕获并处理其他所有未知异常
      */
     @ExceptionHandler(Exception.class)
-    public ApiResult<?> handleException(Exception e) {
+    public GlobalResponse<?> handleException(Exception e) {
         e.printStackTrace();
-        return ApiResult.error(500, "服务器发生未知错误，请联系管理员");
+        return GlobalResponse.error(500, "服务器发生未知错误，请联系管理员");
     }
 }

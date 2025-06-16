@@ -1,14 +1,11 @@
 package com.zjj.netdisk.entity.DTO;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 分享记录表
@@ -16,10 +13,7 @@ import java.util.Date;
  */
 @TableName(value ="shares")
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class SharesDTO {
+public class Shares {
     /**
      * 分享记录的唯一标识符，主键，自增
      */
@@ -77,7 +71,7 @@ public class SharesDTO {
         if (getClass() != that.getClass()) {
             return false;
         }
-        SharesDTO other = (SharesDTO) that;
+        Shares other = (Shares) that;
         return (this.getShareId() == null ? other.getShareId() == null : this.getShareId().equals(other.getShareId()))
             && (this.getUserFileId() == null ? other.getUserFileId() == null : this.getUserFileId().equals(other.getUserFileId()))
             && (this.getSharerUserId() == null ? other.getSharerUserId() == null : this.getSharerUserId().equals(other.getSharerUserId()))

@@ -4,9 +4,9 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import cn.hutool.crypto.digest.DigestUtil;
-import com.zjj.netdisk.entity.DTO.UsersDTO;
+import com.zjj.netdisk.entity.DTO.Users;
 import com.zjj.netdisk.pojo.*;
-import com.zjj.netdisk.satoken.StpKit;
+import com.zjj.netdisk.pojo.response.GlobalResponse;
 import com.zjj.netdisk.service.UsersService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,34 +31,34 @@ public class UsersController {
     }
 
     @RequestMapping("/test")
-    public ApiResult<?> test() {
-        UsersDTO user = usersService.getById(1018);
-        return ApiResult.success("返回数据", user);
+    public GlobalResponse<?> test() {
+        Users user = usersService.getById(1018);
+        return GlobalResponse.success("返回数据", user);
     }
 
     // 会话登录接口
     @Operation(summary = "用户登录")
     @PostMapping("/session")
-    public ApiResult<?> doLogin(@RequestBody LoginDTO loginDTO) {
+    public GlobalResponse<?> doLogin(@RequestBody LoginDTO loginDTO) {
         return usersService.login(loginDTO);
     }
 
     // 会话登出接口
     @Operation(summary = "用户登出")
     @PostMapping("/doLogout")
-    public ApiResult<?> doLogout() {
+    public GlobalResponse<?> doLogout() {
         try {
             // 直接登出
-            StpKit.USER.logout();
-            return ApiResult.success("登出成功", null);
+            StpUtil.logout();
+            return GlobalResponse.success("登出成功", null);
         } catch (Exception e) {
-            return ApiResult.error(500, e.getMessage());
+            return GlobalResponse.error(500, e.getMessage());
         }
     }
 
     @Operation(summary = "用户注册")
     @PostMapping("/register")
-    public ApiResult<?> registerUser(@RequestBody RegisterRequest registerRequest) {
+    public GlobalResponse<?> registerUser(@RequestBody RegisterRequest registerRequest) {
         if (registerRequest.isNeedHashed()) {
             registerRequest.setPassword(DigestUtil.sha256Hex(registerRequest.getPassword()));
         }
@@ -68,7 +68,7 @@ public class UsersController {
     //    更新用户信息
     @Operation(summary = "更新用户信息")
     @PutMapping("/updateUser")
-    @SaCheckLogin(type = "user,admin")
+    @SaCheckLogin(type = "admin")
     public SaResult updateUser(@RequestBody UpdateUserDTO updateUserDTO) {
         usersService.updateUser(updateUserDTO.getUserId(), updateUserDTO);
         return SaResult.ok("用户信息更新成功");
@@ -78,7 +78,7 @@ public class UsersController {
     @Operation(summary = "修改密码")
     @PatchMapping("/updatePassword")
     @SaCheckLogin(type = "user")
-    public ApiResult<?> updatePassword(@RequestBody UpdatePasswordDTO passwordDTO) {
+    public GlobalResponse<?> updatePassword(@RequestBody UpdatePasswordDTO passwordDTO) {
         Long userId = StpUtil.getLoginIdAsLong();
         return usersService.updatePassword(userId, passwordDTO);
     }
@@ -87,7 +87,7 @@ public class UsersController {
     @Operation(summary = "删除用户")
     @RequestMapping("/deleteUser/{userId}")
     @SaCheckLogin(type = "admin")
-    public ApiResult<?> deleteUser(@PathVariable("userId") Long userId) {
+    public GlobalResponse<?> deleteUser(@PathVariable("userId") Long userId) {
         return usersService.deleteUser(userId);
     }
 }

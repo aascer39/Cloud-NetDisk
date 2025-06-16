@@ -2,7 +2,7 @@ package com.zjj.netdisk.pojo.response;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.zjj.netdisk.entity.DTO.UsersDTO;
+import com.zjj.netdisk.entity.DTO.Users;
 import com.zjj.netdisk.utils.UtilityTools;
 import lombok.Builder;
 import lombok.Data;
@@ -41,7 +41,7 @@ public class UserLoginResponse {
 
 
     // 一个静态方法用于从 UsersDTO 和 SaResult 转换成json
-    public static UserLoginResponse fromUserLoginResponse(UsersDTO user, SaTokenInfo saTokenInfo) {
+    public static UserLoginResponse fromUserLoginResponse(Users user, SaTokenInfo saTokenInfo) {
         return UserLoginResponse.builder()
                 .tokenName(saTokenInfo.getTokenName())
                 .tokenValue(saTokenInfo.getTokenValue())

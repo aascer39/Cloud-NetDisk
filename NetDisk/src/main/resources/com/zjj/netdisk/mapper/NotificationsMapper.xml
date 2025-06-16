@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zjj.netdisk.mapper.NotificationsMapper">
 
-    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.DTO.NotificationsDTO">
+    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.DTO.Notifications">
             <id property="notificationId" column="notification_id" />
             <result property="userId" column="user_id" />
             <result property="title" column="title" />

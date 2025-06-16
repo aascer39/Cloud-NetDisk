@@ -1,13 +1,11 @@
 package com.zjj.netdisk.entity.DTO;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 传输任务表，支持断点续传和任务控制
@@ -15,10 +13,7 @@ import java.util.Date;
  */
 @TableName(value ="transfer_tasks")
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class TransferTasksDTO {
+public class TransferTasks {
     /**
      * 传输任务的唯一标识符 (例如 UUID)，主键
      */
@@ -96,7 +91,7 @@ public class TransferTasksDTO {
         if (getClass() != that.getClass()) {
             return false;
         }
-        TransferTasksDTO other = (TransferTasksDTO) that;
+        TransferTasks other = (TransferTasks) that;
         return (this.getTaskId() == null ? other.getTaskId() == null : this.getTaskId().equals(other.getTaskId()))
             && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
             && (this.getUserFileId() == null ? other.getUserFileId() == null : this.getUserFileId().equals(other.getUserFileId()))

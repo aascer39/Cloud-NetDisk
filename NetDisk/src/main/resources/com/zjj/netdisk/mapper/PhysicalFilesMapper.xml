@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zjj.netdisk.mapper.PhysicalFilesMapper">
 
-    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.DTO.PhysicalFilesDTO">
+    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.DTO.PhysicalFiles">
             <id property="fileHash" column="file_hash" />
             <result property="fileSizeBytes" column="file_size_bytes" />
             <result property="storagePath" column="storage_path" />
@@ -15,27 +15,4 @@
     <sql id="Base_Column_List">
         file_hash,file_size_bytes,storage_path,reference_count,creation_ts
     </sql>
-    <insert id="insertPhysicalFiles" parameterType="com.zjj.netdisk.entity.DTO.PhysicalFilesDTO">
-        INSERT INTO physical_files (file_hash, file_size_bytes, storage_path, reference_count, creation_ts)
-        VALUES (#{fileHash}, #{fileSizeBytes}, #{storagePath}, #{referenceCount}, #{creationTs})
-    </insert>
-    <update id="updatePhysicalFiles" parameterType="com.zjj.netdisk.entity.DTO.PhysicalFilesDTO">
-        UPDATE physical_files
-        SET
-            file_size_bytes = #{fileSizeBytes},
-            storage_path = #{storagePath},
-            reference_count = #{referenceCount},
-            creation_ts = #{creationTs}
-        WHERE
-            file_hash = #{fileHash}
-    </update>
-    <select id="selectByFileHash" resultType="com.zjj.netdisk.entity.DTO.PhysicalFilesDTO"
-            parameterType="java.lang.String">
-        SELECT
-        <include refid="Base_Column_List"/>
-        FROM
-        physical_files
-        WHERE
-        file_hash = #{fileHash}
-    </select>
 </mapper>

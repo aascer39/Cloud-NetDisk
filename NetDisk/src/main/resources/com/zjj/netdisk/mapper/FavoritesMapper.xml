@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zjj.netdisk.mapper.FavoritesMapper">
 
-    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.DTO.FavoritesDTO">
+    <resultMap id="BaseResultMap" type="com.zjj.netdisk.entity.DTO.Favorites">
             <id property="favoriteId" column="favorite_id" />
             <result property="userId" column="user_id" />
             <result property="userFileId" column="user_file_id" />

@@ -1,14 +1,11 @@
 package com.zjj.netdisk.entity.DTO;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.Date;
+import lombok.Data;
 
 /**
  * 用户文件/文件夹表，代表用户视角的文件和文件夹
@@ -16,10 +13,7 @@ import java.util.Date;
  */
 @TableName(value ="user_files")
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class UserFilesDTO {
+public class UserFiles {
     /**
      * 文件或文件夹的唯一标识符，主键，自增
      */
@@ -92,7 +86,7 @@ public class UserFilesDTO {
         if (getClass() != that.getClass()) {
             return false;
         }
-        UserFilesDTO other = (UserFilesDTO) that;
+        UserFiles other = (UserFiles) that;
         return (this.getFileId() == null ? other.getFileId() == null : this.getFileId().equals(other.getFileId()))
             && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
             && (this.getParentFolder() == null ? other.getParentFolder() == null : this.getParentFolder().equals(other.getParentFolder()))

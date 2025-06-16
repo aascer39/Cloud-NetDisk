@@ -1,15 +1,12 @@
 package com.zjj.netdisk.service;
 
-import com.zjj.netdisk.entity.DTO.PhysicalFilesDTO;
+import com.zjj.netdisk.entity.DTO.PhysicalFiles;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
 * @author 34978
 * @description 针对表【physical_files(物理文件表，用于文件去重)】的数据库操作Service
-* @createDate 2025-05-29 13:53:21
+* @createDate 2025-06-16 17:07:50
 */
-public interface PhysicalFilesService extends IService<PhysicalFilesDTO> {
-    void insertPhysicalFiles(PhysicalFilesDTO physicalFiles);
-    PhysicalFilesDTO selectByFileHash(String fileHash);
-    void updatePhysicalFiles(PhysicalFilesDTO physicalFiles);
+public interface PhysicalFilesService extends IService<PhysicalFiles> {
 }

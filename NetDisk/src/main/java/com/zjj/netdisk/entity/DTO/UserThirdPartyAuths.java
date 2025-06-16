@@ -1,26 +1,19 @@
 package com.zjj.netdisk.entity.DTO;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * 用户第三方认证关联表
- * @author 34978
  * @TableName user_third_party_auths
  */
 @TableName(value ="user_third_party_auths")
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class UserThirdPartyAuthsDTO {
+public class UserThirdPartyAuths {
     /**
      * 主键
      */
@@ -68,7 +61,7 @@ public class UserThirdPartyAuthsDTO {
         if (getClass() != that.getClass()) {
             return false;
         }
-        UserThirdPartyAuthsDTO other = (UserThirdPartyAuthsDTO) that;
+        UserThirdPartyAuths other = (UserThirdPartyAuths) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
             && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
             && (this.getProvider() == null ? other.getProvider() == null : this.getProvider().equals(other.getProvider()))

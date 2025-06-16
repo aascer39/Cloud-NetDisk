@@ -2,9 +2,9 @@ package com.zjj.netdisk.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zjj.netdisk.entity.DTO.UsersDTO;
+import com.zjj.netdisk.entity.DTO.Users;
 import com.zjj.netdisk.pojo.AdminAddUserRequest;
-import com.zjj.netdisk.pojo.ApiResult;
+import com.zjj.netdisk.pojo.response.GlobalResponse;
 import com.zjj.netdisk.pojo.LoginDTO;
 import com.zjj.netdisk.pojo.PageDTO;
 import com.zjj.netdisk.satoken.StpKit;
@@ -14,6 +14,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -37,7 +40,7 @@ public class AdminController {
     // 会话登录接口
     @Operation(summary = "管理员登录")
     @PostMapping("/session")
-    public ApiResult<?> doLogin(@RequestBody LoginDTO loginDTO) {
+    public GlobalResponse<?> doLogin(@RequestBody LoginDTO loginDTO) {
         return adminsService.login(loginDTO);
     }
 
@@ -50,23 +53,21 @@ public class AdminController {
     @Operation(summary = "[管理员] 分页获取用户列表")
     @GetMapping("/page")
     @SaCheckLogin(type = "admin")
-    public ApiResult<?> listUsersByPage(PageDTO pageDTO) {
-        log.info("管理员 {} 正在分页查询用户列表，参数: {}", StpKit.ADMIN.getLoginId(), pageDTO);
+    public GlobalResponse<?> listUsersByPage(PageDTO pageDTO) {
+        log.info("管理员 {} 正在从Redis中分页查询用户列表，参数: {}", StpKit.ADMIN.getLoginId(), pageDTO);
+        IPage<Users> pageResult = usersService.findUserPageWithQueryWrapper(pageDTO);
 
-        IPage<UsersDTO> pageResult = usersService.findUserPageWithQueryWrapper(pageDTO);
-
-        return ApiResult.success("查询成功", pageResult);
+        return GlobalResponse.success("查询成功", pageResult);
     }
 
     /**
      * 管理员登出接口
      *
-     * @return ApiResult
+     * @return GlobalResponse
      */
     @Operation(summary = "管理员登出")
     @PostMapping("/logout")
-    @SaCheckLogin(type = "admin")
-    public ApiResult<?> doLogout() {
+    public GlobalResponse<?> doLogout() {
         return adminsService.logout();
     }
 
@@ -74,7 +75,7 @@ public class AdminController {
     @Operation(summary = "管理员添加新用户")
     @PostMapping("/addUser")
     @SaCheckLogin(type = "admin")
-    public ApiResult<?> addUser(@RequestBody AdminAddUserRequest request) {
+    public GlobalResponse<?> addUser(@RequestBody AdminAddUserRequest request) {
         return usersService.adminAddUser(request.getUsername(), request.getEmail());
     }
 
@@ -82,7 +83,7 @@ public class AdminController {
     @Operation(summary = "封禁用户")
     @PatchMapping("/suspendUser/{userId}")
     @SaCheckLogin(type = "admin")
-    public ApiResult<?> suspendUser(@PathVariable("userId") Long userId) {
+    public GlobalResponse<?> suspendUser(@PathVariable("userId") Long userId) {
         return usersService.suspendUser(userId);
     }
 
@@ -90,7 +91,7 @@ public class AdminController {
     @Operation(summary = "解封用户")
     @PatchMapping("/unsuspendUser/{userId}")
     @SaCheckLogin(type = "admin")
-    public ApiResult<?> unsuspendUser(@PathVariable("userId") Long userId) {
+    public GlobalResponse<?> unsuspendUser(@PathVariable("userId") Long userId) {
         return usersService.unsuspendUser(userId);
     }
 
@@ -98,7 +99,23 @@ public class AdminController {
     @Operation(summary = "重置登录密码")
     @PatchMapping("/resetPassword/{userId}")
     @SaCheckLogin(type = "admin")
-    public ApiResult<?> resetPassword(@PathVariable("userId") Long userId) {
+    public GlobalResponse<?> resetPassword(@PathVariable("userId") Long userId) {
         return usersService.resetPassword(userId);
+    }
+
+    //获取管理员信息
+    @Operation(summary = "获取管理员信息")
+    @GetMapping("/info/{AdminId}")
+    @SaCheckLogin(type = "admin")
+    public GlobalResponse<?> getAdminInfo(@PathVariable("AdminId") Long adminId) {
+        return adminsService.getAdminInfo(adminId);
+    }
+
+    //为用户更改最大容量
+    @Operation(summary = "更改最大容量")
+    @PatchMapping("/updateUserStorage")
+    @SaCheckLogin(type = "admin")
+    public GlobalResponse<?> updateUserStorage(Long userId, Long storageLimit) {
+        return usersService.updateUserStorage(userId, storageLimit);
     }
 }

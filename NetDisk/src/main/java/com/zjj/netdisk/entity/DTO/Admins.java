@@ -1,8 +1,11 @@
 package com.zjj.netdisk.entity.DTO;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.io.Serializable;
 import java.util.Date;
 
 import lombok.AllArgsConstructor;
@@ -12,6 +15,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * 管理员信息表
+ * @author 34978
  * @TableName admins
  */
 @TableName(value ="admins")
@@ -19,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdminsDTO {
+public class Admins implements Serializable {
     /**
      * 管理员唯一标识符，主键，自增
      */
@@ -72,7 +76,7 @@ public class AdminsDTO {
         if (getClass() != that.getClass()) {
             return false;
         }
-        AdminsDTO other = (AdminsDTO) that;
+        Admins other = (Admins) that;
         return (this.getAdminId() == null ? other.getAdminId() == null : this.getAdminId().equals(other.getAdminId()))
             && (this.getUsername() == null ? other.getUsername() == null : this.getUsername().equals(other.getUsername()))
             && (this.getPasswordHash() == null ? other.getPasswordHash() == null : this.getPasswordHash().equals(other.getPasswordHash()))

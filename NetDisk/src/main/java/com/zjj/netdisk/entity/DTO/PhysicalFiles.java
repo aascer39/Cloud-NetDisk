@@ -1,13 +1,13 @@
 package com.zjj.netdisk.entity.DTO;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
+import java.util.Date;
+
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.Date;
 
 /**
  * 物理文件表，用于文件去重
@@ -16,9 +16,7 @@ import java.util.Date;
 @TableName(value ="physical_files")
 @Data
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class PhysicalFilesDTO {
+public class PhysicalFiles {
     /**
      * 文件内容的唯一哈希值（例如 SHA-256），作为主键
      */
@@ -56,7 +54,7 @@ public class PhysicalFilesDTO {
         if (getClass() != that.getClass()) {
             return false;
         }
-        PhysicalFilesDTO other = (PhysicalFilesDTO) that;
+        PhysicalFiles other = (PhysicalFiles) that;
         return (this.getFileHash() == null ? other.getFileHash() == null : this.getFileHash().equals(other.getFileHash()))
             && (this.getFileSizeBytes() == null ? other.getFileSizeBytes() == null : this.getFileSizeBytes().equals(other.getFileSizeBytes()))
             && (this.getStoragePath() == null ? other.getStoragePath() == null : this.getStoragePath().equals(other.getStoragePath()))
